@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const bcrypt = require('bcryptjs');
 
 const jwt = require('jsonwebtoken');
@@ -33,6 +35,26 @@ app.post('/register', async (req, res) => {
   users.push(newUser);
 
   res.status(201).send('User registered successfully');
+});
+
+app.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  const user = users.find(users => users.email === email);
+  if (!user) {
+    return res.status(401).send('Invalid email or password');
+  }
+
+  const isPasswordCorrect = await bcrypt.compare(password, user.password);
+  if (!isPasswordCorrect) {
+    return res.status(401).send('Invalid email or password');
+  }
+
+  const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET, {
+    expiresIn: '1h',
+  });
+
+  res.json({ token });
 });
 
 app.listen(port, () => {
