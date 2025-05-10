@@ -1,4 +1,4 @@
-POST http://localhost:3000/register
+POST http://localhost:3000/api/users/register
 Content-Type: application/json
 
 {
@@ -8,10 +8,16 @@ Content-Type: application/json
 
 ###
 
-POST http://localhost:3000/login
+POST http://localhost:3000/api/users/login
 Content-Type: application/json
 
 {
   "email": "Tom",
   "password": "123456"
 }
+
+###
+
+GET http://localhost:3000/api/users/dashboard
+Content-Type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IlRvbSIsImlhdCI6MTc0NjkxMDE5MiwiZXhwIjoxNzQ2OTEzNzkyfQ.zGPr17WH-0Z85SbO6KKDLmdFVvCJ4FDpGRPoaDltVmY
