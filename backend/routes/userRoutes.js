@@ -49,6 +49,12 @@ router.post('/login', async (req, res) => {
   res.json({ token });
 });
 
+router.post('/logout', (req, res) => {
+  res.status(200).json({
+    message: 'Logged out successfully, please remove token from the client',
+  });
+});
+
 router.get('/dashboard', authenticateToken, (req, res) => {
   res
     .status(200)
