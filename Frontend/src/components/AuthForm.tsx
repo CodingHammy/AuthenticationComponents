@@ -45,7 +45,9 @@ export default function AuthForm({ type }: AuthFormProps) {
   };
   return (
     <div className='max-w-md mx-auto p-4'>
-      <h2 className='text-2xl font-bold mb-4'>Register</h2>
+      <h2 className='text-2xl font-bold mb-4'>
+        {type === 'register' ? 'register' : 'login'}
+      </h2>
       <form onSubmit={handleRegister} className='space-y-4'>
         <input
           type='email'
