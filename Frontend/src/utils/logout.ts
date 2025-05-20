@@ -3,5 +3,5 @@ export const handleLogout = (navigate: (path: string) => void) => {
   localStorage.removeItem('token');
 
   // Redirect to the login page
-  navigate('/login');
+  navigate('/');
 };
