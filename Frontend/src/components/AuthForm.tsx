@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 
 type AuthFormProps = {
   type: 'login' | 'register';
@@ -11,13 +12,14 @@ export default function AuthForm({ type }: AuthFormProps) {
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSuccess = (location: string) => {
+  const handleSuccess = () => {
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);
-      navigate(location, { replace: true });
+      navigate('/', { replace: true });
     }, 1500);
   };
 
@@ -40,12 +42,11 @@ export default function AuthForm({ type }: AuthFormProps) {
 
       if (res.ok) {
         if (type === 'login') {
-          localStorage.setItem('token', data.token);
-          setMessage('Login successful!');
-          handleSuccess('/dashboard');
+          // localStorage.setItem('token', data.token);
+          login(data.token);
         } else {
           setMessage('Registration successful! You can now log in.');
-          handleSuccess('/');
+          handleSuccess();
         }
         setEmail('');
         setPassword('');

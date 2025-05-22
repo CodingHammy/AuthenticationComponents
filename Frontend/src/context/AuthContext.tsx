@@ -19,6 +19,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const login = (newToken: string) => {
     localStorage.setItem('token', newToken);
     setToken(newToken);
+    navigate('/dashboard', { replace: true });
   };
 
   const logout = () => {
