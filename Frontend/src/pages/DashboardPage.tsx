@@ -1,12 +1,11 @@
-import { useNavigate } from 'react-router-dom';
-import { handleLogout } from '../utils/logout';
+import { useAuth } from '../context/AuthContext';
 
 export default function DashboardPage() {
-  const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const handleLogoutClick = () => {
     // Call the handleLogout function to clear the token and redirect
-    handleLogout(navigate);
+    logout();
   };
 
   return (
