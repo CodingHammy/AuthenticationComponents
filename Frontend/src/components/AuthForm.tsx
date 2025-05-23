@@ -15,7 +15,7 @@ export default function AuthForm({ type }: AuthFormProps) {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSuccess = () => {
+  const handleSuccessfulResgister = () => {
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);
@@ -46,7 +46,7 @@ export default function AuthForm({ type }: AuthFormProps) {
           login(data.token);
         } else {
           setMessage('Registration successful! You can now log in.');
-          handleSuccess();
+          handleSuccessfulResgister();
         }
         setEmail('');
         setPassword('');
