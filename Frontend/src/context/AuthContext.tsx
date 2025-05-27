@@ -20,15 +20,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   });
   const navigate = useNavigate();
 
-  const login = (newToken: string) => {
+  const login = async (newToken: string) => {
     localStorage.setItem('token', newToken);
     setToken(newToken);
+    await validateToken(); // Validate token after login
     navigate('/dashboard', { replace: true });
   };
 
   const logout = () => {
     localStorage.removeItem('token');
     setToken(null);
+    setAuthenticated(false);
     navigate('/', { replace: true });
   };
 
@@ -63,7 +65,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     validateToken(); // run once on load
-  });
+  }, []);
 
   return (
     <AuthContext.Provider
