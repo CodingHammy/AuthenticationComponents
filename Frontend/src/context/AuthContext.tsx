@@ -1,3 +1,7 @@
+// TODO: Implement startTokenExpiryTimer and stopTokenExpiryTimer
+//       to manage token validation timer and call validateToken()    when timer expires.
+// TODO: later update authform to intergrate the new timer logic
+
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -20,10 +24,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   });
   const navigate = useNavigate();
 
+  // NOTE: the login function sets the token and naivigate to dashboard if successful
+
   const login = async (newToken: string) => {
+    //NOTE: stores token to localstorage
     localStorage.setItem('token', newToken);
+    //NOTE: updates token state state
     setToken(newToken);
-    await validateToken(); // Validate token after login
+    //TODO: check if i can avoid running validateToken here
+    //      we know that the token is valid because the login creates a new token
+    await validateToken();
+    //NOTE: navigates to dashboard
     navigate('/dashboard', { replace: true });
   };
 
