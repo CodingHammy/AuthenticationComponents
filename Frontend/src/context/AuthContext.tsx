@@ -17,14 +17,17 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  // NOTE: initially assume user is not authenticated
   const [isAuthenticated, setAuthenticated] = useState(false);
+  // NOTE: Loading is set to true while token is being validated to prevent premature redirection in PrivateRoute
   const [isLoading, setLoading] = useState(true);
+  // NOTE: token is stored in localstorage on intial render
   const [token, setToken] = useState<string | null>(() => {
     return localStorage.getItem('token');
   });
   const navigate = useNavigate();
 
-  // NOTE: the login function sets the token and naivigate to dashboard if successful
+  // NOTE: the login function sets the token and navigate to dashboard if successful
   // NOTE this function is called when the users clicks login button in AuthForm component
   const login = async (newToken: string) => {
     //NOTE: stores token to localstorage
@@ -38,7 +41,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     navigate('/dashboard', { replace: true });
   };
 
-  //  NOTE: the logout function removes the token from localstorage, and token state, sets authenticed to false and navigates to the login page
+  //  NOTE: the logout function removes the token from localstorage, and token state, sets authenticated to false and navigates to the login page
   // NOTE this function is called when the users clicks logout button in navbar component and is also in the dashboard page
   // TODO: implement a timer to automatically logout the user after a certain period of inactivity
   const logout = () => {
@@ -82,8 +85,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // NOTE: token is invalid or expired, calls logout
         logout();
       }
-      // HACK: aggresive error handling, could be improved
-      // TODO: improve error handling - distiguish between 401(expired token) 500+(server error) and retry if appropriate
+      // HACK: aggressive error handling, could be improved
+      // TODO: improve error handling - distinguish between 401(expired token) 500+(server error) and retry if appropriate
     } catch (error) {
       console.error('Error validating token:', error);
       logout();
@@ -95,10 +98,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // NOTE: isloading prevents premature redirection in privateroute by waiting for validation to complete
   useEffect(() => {
-    validateToken(); // run once on load
+    validateToken(); //NOTE validate Token on initial load
   }, []);
 
   return (
+    // NOTE: provides the auth context to the rest of the app
     <AuthContext.Provider
       value={{
         isAuthenticated,
