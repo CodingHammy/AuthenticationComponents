@@ -52,14 +52,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     navigate('/', { replace: true });
   };
 
+  // NOTE: the validateToken function checks if the token is valid by making a request to the dashboard endpoint, if valid it sets authenticated to true, which is used to determine whether the user can access protected routes, if not valid it calls the logout function
+  // NOTE this function is called when the app loads and also when the user logs in
+  // TODO: implement a timer-based auto-logout for session expiration or inactivity
   const validateToken = async () => {
     const token = localStorage.getItem('token');
+    //NOTE: if no token is found, user is not authenticated stops loading to unblock navigate
     if (!token) {
+      // NOTE: sets authenticated to false to block access to protected routes
       setAuthenticated(false);
+      // NOTE: sets loading to false to unblock navigation
       setLoading(false);
       return;
     }
 
+    // NOTES: makes request to protected /dashboard route with token
     try {
       const res = await fetch('http://localhost:3000/api/users/dashboard', {
         method: 'GET',
@@ -68,19 +75,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         },
       });
 
+      // NOTE: token is valid if the response is ok
       if (res.ok) {
         setAuthenticated(true);
       } else {
+        // NOTE: token is invalid or expired, calls logout
         logout();
       }
+      // HACK: aggresive error handling, could be improved
+      // TODO: improve error handling - distiguish between 401(expired token) 500+(server error) and retry if appropriate
     } catch (error) {
       console.error('Error validating token:', error);
       logout();
     } finally {
+      // NOTE: done loading - used by privateroute to wait for validation to complete
       setLoading(false);
     }
   };
 
+  // NOTE: isloading prevents premature redirection in privateroute by waiting for validation to complete
   useEffect(() => {
     validateToken(); // run once on load
   }, []);
