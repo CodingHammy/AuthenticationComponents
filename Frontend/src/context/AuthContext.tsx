@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
 
   // NOTE: the login function sets the token and naivigate to dashboard if successful
-
+  // NOTE this function is called when the users clicks login button in AuthForm component
   const login = async (newToken: string) => {
     //NOTE: stores token to localstorage
     localStorage.setItem('token', newToken);
@@ -38,10 +38,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     navigate('/dashboard', { replace: true });
   };
 
+  //  NOTE: the logout function removes the token from localstorage, and token state, sets authenticed to false and navigates to the login page
+  // NOTE this function is called when the users clicks logout button in navbar component and is also in the dashboard page
+  // TODO: implement a timer to automatically logout the user after a certain period of inactivity
   const logout = () => {
+    //NOTE: removes token from localstorage
     localStorage.removeItem('token');
+    //NOTE: resets token state
     setToken(null);
+    //NOTE: marks user as not authenticated
     setAuthenticated(false);
+    //NOTE: navigates to login page
     navigate('/', { replace: true });
   };
 
