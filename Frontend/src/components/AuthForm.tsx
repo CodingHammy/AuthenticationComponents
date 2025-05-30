@@ -7,25 +7,22 @@ type AuthFormProps = {
 };
 
 export default function AuthForm({ type }: AuthFormProps) {
+  // NOTE: form state for : email, password, and message,
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
 
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSuccessfulResgister = () => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      navigate('/', { replace: true });
-    }, 1500);
-  };
-
-  const handleRegister = async (e: React.FormEvent) => {
+  /**
+   * Handles form submission for login or registration.
+   * Sends POST to API and acts based on response and form type.
+   */
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage('');
+    // NOTE: endpoint is determined by the type of form, register or login
     const endPoint =
       type === 'register'
         ? 'http://localhost:3000/api/users/register'
@@ -41,13 +38,15 @@ export default function AuthForm({ type }: AuthFormProps) {
       const data = await res.json();
 
       if (res.ok) {
+        // NOTE: if logging in, store token and navigate to dashboard
         if (type === 'login') {
-          // localStorage.setItem('token', data.token);
           login(data.token);
         } else {
-          setMessage('Registration successful! You can now log in.');
-          handleSuccessfulResgister();
+          // HACK: backend doesnt return token on register yet
+          // TODO: add jwt token in response after registering - server side. and then redirect to dashboard -client side
+          navigate('/', { replace: true });
         }
+        // NOTE: reset form fields after successful login or register
         setEmail('');
         setPassword('');
       } else {
@@ -63,34 +62,32 @@ export default function AuthForm({ type }: AuthFormProps) {
       <h2 className='text-2xl font-bold mb-4'>
         {type === 'register' ? 'Register' : 'Login'}
       </h2>
-      {!isLoading ? (
-        <form onSubmit={handleRegister} className='space-y-4'>
-          <input
-            type='email'
-            placeholder='email'
-            className='w-full p-2 border rounded'
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            required
-          />
-          <input
-            type='password'
-            placeholder='password'
-            className='w-full p-2 border rounded'
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            required
-          />
-          <button
-            type='submit'
-            className='w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700'
-          >
-            {type === 'register' ? 'Register' : 'Login'}
-          </button>
-        </form>
-      ) : (
-        <p className='mx-auto text-2xl font-bold'>Loading ...</p>
-      )}
+      {/* Form for login or register */}
+      <form onSubmit={handleSubmit} className='space-y-4'>
+        <input
+          type='email'
+          placeholder='email'
+          className='w-full p-2 border rounded'
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+          required
+        />
+        <input
+          type='password'
+          placeholder='password'
+          className='w-full p-2 border rounded'
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          required
+        />
+        <button
+          type='submit'
+          className='w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700'
+        >
+          {type === 'register' ? 'Register' : 'Login'}
+        </button>
+      </form>
+
       {message && <p className='mt-4 text-center'>{message}</p>}
     </div>
   );

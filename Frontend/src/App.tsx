@@ -8,11 +8,14 @@ import NavBar from './components/NavBar';
 function App() {
   return (
     <>
+      {/* Global Navbar */}
       <NavBar />
       <Routes>
+        {/* public routes */}
         <Route path='/' element={<LoginPage />} />
         <Route path='/register' element={<RegisterPage />} />
 
+        {/* private routes - only accessible if authenticated */}
         <Route
           path='/dashboard'
           element={
