@@ -38,14 +38,8 @@ export default function AuthForm({ type }: AuthFormProps) {
       const data = await res.json();
 
       if (res.ok) {
-        // NOTE: if logging in, store token and navigate to dashboard
-        if (type === 'login') {
-          login(data.token);
-        } else {
-          // HACK: backend doesnt return token on register yet
-          // TODO: add jwt token in response after registering - server side. and then redirect to dashboard -client side
-          navigate('/', { replace: true });
-        }
+        // NOTE: log in store token and navigate to dashboard
+        login(data.token);
         // NOTE: reset form fields after successful login or register
         setEmail('');
         setPassword('');
