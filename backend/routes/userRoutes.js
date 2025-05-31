@@ -73,16 +73,24 @@ router.post('/login', async (req, res) => {
   res.json({ token });
 });
 
+// NOTE: This route simulates a logout operation
+// HACK: No real session/token invalidation occurs on the server
+// TODO: Implement token blacklist or proper session handling if needed
 router.post('/logout', (req, res) => {
   res.status(200).json({
     message: 'Logged out successfully, please remove token from the client',
   });
 });
 
+// NOTE: Protected route - only accessible with a valid jwt
+// NOTE: Token is verified using authenticateToken middleware
+// TODO: Customize dashboard data based on authenticated user
 router.get('/dashboard', authenticateToken, (req, res) => {
-  res
-    .status(200)
-    .json({ message: 'Welcome to the dashboard! ', user: req.user });
+  res.status(200).json({
+    message: 'Welcome to the dashboard! ',
+    // NOTE: This contains user data from the verified JWT
+    user: req.user,
+  });
 });
 
 module.exports = router;
