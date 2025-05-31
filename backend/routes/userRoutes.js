@@ -1,14 +1,19 @@
 const dotenv = require('dotenv');
 const express = require('express');
 const router = express.Router();
-const authenticateToken = require('../middlewares/authMiddleware');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+// NOTE: import authenticateToken middleware for protecting routes
+const authenticateToken = require('../middlewares/authMiddleware');
+
 dotenv.config();
+// Hack: using in-memory storage for users; not suitable for production
+// TODO: Replace this with a real database for persistent storage
 const users = [];
 
 router.post('/register', async (req, res) => {
+  // HACK: missing validation for email format, password strength and username.
   const { email, password } = req.body;
 
   // if no email or password is provided, return 400 error
@@ -16,12 +21,18 @@ router.post('/register', async (req, res) => {
     return res.status(400).json({ message: 'Email and password are required' });
   }
 
+  // NOTE: check if user already exists (in memory array)
   const existingUser = users.find(user => user.email === email);
 
   if (existingUser) {
+    // HACK: this checks if user exists in memory array
+    // TODO: implement db query to check user exists
     return res.status(400).json({ message: 'User already exists' });
   }
 
+  // NOTE: Hash password before storing user
+  // HACK: Saving user in memory array; replace with DB save
+  // TODO: Implement DB persistence for new user
   const hashedPassword = await bcrypt.hash(password, 10);
   const newUser = { email, password: hashedPassword };
   users.push(newUser);
