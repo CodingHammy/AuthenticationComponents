@@ -37,11 +37,12 @@ router.post('/register', async (req, res) => {
   const newUser = { email, password: hashedPassword };
   users.push(newUser);
 
-  // HACK: missing token generation on registration
-  // TODO: Consider generating a token on registration
-  // to allow immediate login after registration
+  // NOTE: Generate JWT token for the new user
+  const token = jwt.sign({ email: newUser.email }, process.env.JWT_SECRET, {
+    expiresIn: '1h',
+  });
 
-  res.status(201).json({ message: 'User registered successfully' });
+  res.status(201).json({ message: 'User registered successfully', token });
 });
 
 router.post('/login', async (req, res) => {
