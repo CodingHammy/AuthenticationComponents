@@ -37,26 +37,39 @@ router.post('/register', async (req, res) => {
   const newUser = { email, password: hashedPassword };
   users.push(newUser);
 
+  // HACK: missing token generation on registration
+  // TODO: Consider generating a token on registration
+  // to allow immediate login after registration
+
   res.status(201).json({ message: 'User registered successfully' });
 });
 
 router.post('/login', async (req, res) => {
+  // NOTE: Extracts email and password from request body
+  // HACK: missing validation for email format, password strength and username not yet supported username.
+  // TODO: Add validation for email format, password strength and username.
   const { email, password } = req.body;
 
+  // NOTE: Find user in in-memory array by email
+  // HACK: using an in-memory array for users;
+  // TODO: Replace this with a real database query
   const user = users.find(users => users.email === email);
   if (!user) {
     return res.status(401).json({ message: 'Invalid email or password' });
   }
 
+  // NOTE: compare input password with hashed password
   const isPasswordCorrect = await bcrypt.compare(password, user.password);
   if (!isPasswordCorrect) {
     return res.status(401).json({ message: 'Invalid email or password' });
   }
 
+  // NOTE: Generate JWT token with user's email
   const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET, {
     expiresIn: '1h',
   });
 
+  // NOTE: Respond with token for client to store and use
   res.json({ token });
 });
 
