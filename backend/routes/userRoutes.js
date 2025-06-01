@@ -16,7 +16,7 @@ router.post('/register', async (req, res) => {
   // HACK: missing validation for email format, password strength.
   const { email, password, username } = req.body;
 
-  // if no email or password is provided, return 400 error
+  // if no email, username or password is provided, return 400 error
   if (!email || !password || !username) {
     return res
       .status(400)
@@ -56,10 +56,10 @@ router.post('/register', async (req, res) => {
 });
 
 router.post('/login', async (req, res) => {
-  // NOTE: Extracts email and password from request body
-  // HACK: missing validation for email format, password strength and username not yet supported username.
-  // TODO: Add validation for email format, password strength and username.
-  const { email, password } = req.body;
+  // NOTE: Extracts email, username and password  from request body
+  // HACK: missing validation for email format, password strength.
+  // TODO: Add validation for email format, password strength.
+  const { email, password, username } = req.body;
 
   // NOTE: Find user in in-memory array by email
   // HACK: using an in-memory array for users;
@@ -76,9 +76,13 @@ router.post('/login', async (req, res) => {
   }
 
   // NOTE: Generate JWT token with user's email
-  const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET, {
-    expiresIn: '1h',
-  });
+  const token = jwt.sign(
+    { email: user.email, username: user.username },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: '1h',
+    },
+  );
 
   // NOTE: Respond with token for client to store and use
   res.json({ token });
