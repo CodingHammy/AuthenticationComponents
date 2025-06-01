@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 
@@ -13,7 +12,6 @@ export default function AuthForm({ type }: AuthFormProps) {
   const [message, setMessage] = useState('');
 
   const { login } = useAuth();
-  const navigate = useNavigate();
 
   /**
    * Handles form submission for login or registration.

@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 type AuthContextType = {
   isAuthenticated: boolean;
   token: string | null;
-  login: (token: string) => void;
+  login: (token: string, username: string) => void;
   logout: () => void;
   validateToken: () => Promise<void>;
   isLoading: boolean;
@@ -29,9 +29,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // NOTE: the login function sets the token and navigate to dashboard if successful
   // NOTE this function is called when the users clicks login button in AuthForm component
-  const login = async (newToken: string) => {
+  const login = async (newToken: string, username: string) => {
     //NOTE: stores token to localstorage
     localStorage.setItem('token', newToken);
+    localStorage.setItem('username', username);
     //NOTE: updates token state state
     setToken(newToken);
     //TODO: check if i can avoid running validateToken here
@@ -47,6 +48,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const logout = () => {
     //NOTE: removes token from localstorage
     localStorage.removeItem('token');
+    localStorage.removeItem('username');
     //NOTE: resets token state
     setToken(null);
     //NOTE: marks user as not authenticated
