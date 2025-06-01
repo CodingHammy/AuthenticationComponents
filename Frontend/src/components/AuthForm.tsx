@@ -38,7 +38,7 @@ export default function AuthForm({ type }: AuthFormProps) {
 
       if (res.ok) {
         // NOTE: log in store token and navigate to dashboard
-        login(data.token, data.username);
+        login(data.token, data.user.username);
         // NOTE: reset form fields after successful login or register
         setEmail('');
         setPassword('');
