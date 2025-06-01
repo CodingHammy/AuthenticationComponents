@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 type AuthContextType = {
   isAuthenticated: boolean;
   token: string | null;
+  username: string | null;
   login: (token: string, username: string) => void;
   logout: () => void;
   validateToken: () => Promise<void>;
@@ -25,6 +26,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [token, setToken] = useState<string | null>(() => {
     return localStorage.getItem('token');
   });
+  const [username, setUsername] = useState<string | null>(() => {
+    return localStorage.getItem('username');
+  });
   const navigate = useNavigate();
 
   // NOTE: the login function sets the token and navigate to dashboard if successful
@@ -35,6 +39,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.setItem('username', username);
     //NOTE: updates token state state
     setToken(newToken);
+    setUsername(username);
     //TODO: check if i can avoid running validateToken here
     //      we know that the token is valid because the login creates a new token
     await validateToken();
@@ -51,6 +56,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.removeItem('username');
     //NOTE: resets token state
     setToken(null);
+    setUsername(null);
     //NOTE: marks user as not authenticated
     setAuthenticated(false);
     //NOTE: navigates to login page
@@ -111,6 +117,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         isLoading,
         token,
         login,
+        username,
         logout,
         validateToken,
       }}
