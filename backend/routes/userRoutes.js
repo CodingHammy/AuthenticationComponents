@@ -59,7 +59,7 @@ router.post('/login', async (req, res) => {
   // NOTE: Extracts email, username and password  from request body
   // HACK: missing validation for email format, password strength.
   // TODO: Add validation for email format, password strength.
-  const { email, password, username } = req.body;
+  const { email, password } = req.body;
 
   // NOTE: Find user in in-memory array by email
   // HACK: using an in-memory array for users;
