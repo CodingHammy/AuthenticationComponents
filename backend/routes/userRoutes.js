@@ -13,12 +13,14 @@ dotenv.config();
 const users = [];
 
 router.post('/register', async (req, res) => {
-  // HACK: missing validation for email format, password strength and username.
-  const { email, password } = req.body;
+  // HACK: missing validation for email format, password strength.
+  const { email, password, username } = req.body;
 
-  // if no email or password is provided, return 400 error
-  if (!email || !password) {
-    return res.status(400).json({ message: 'Email and password are required' });
+  // if no email, username or password is provided, return 400 error
+  if (!email || !password || !username) {
+    return res
+      .status(400)
+      .json({ message: 'Email, username and password are required' });
   }
 
   // NOTE: check if user already exists (in memory array)
@@ -34,22 +36,30 @@ router.post('/register', async (req, res) => {
   // HACK: Saving user in memory array; replace with DB save
   // TODO: Implement DB persistence for new user
   const hashedPassword = await bcrypt.hash(password, 10);
-  const newUser = { email, password: hashedPassword };
+  const newUser = { email, username, password: hashedPassword };
   users.push(newUser);
 
   // NOTE: Generate JWT token for the new user
-  const token = jwt.sign({ email: newUser.email }, process.env.JWT_SECRET, {
-    expiresIn: '1h',
-  });
+  const token = jwt.sign(
+    { email: newUser.email, username: newUser.username },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: '1h',
+    },
+  );
 
-  res.status(201).json({ message: 'User registered successfully', token });
+  res.status(201).json({
+    message: 'User registered successfully',
+    token,
+    user: { email: newUser.email, username: newUser.username },
+  });
 });
 
 router.post('/login', async (req, res) => {
-  // NOTE: Extracts email and password from request body
-  // HACK: missing validation for email format, password strength and username not yet supported username.
-  // TODO: Add validation for email format, password strength and username.
-  const { email, password } = req.body;
+  // NOTE: Extracts email, username and password  from request body
+  // HACK: missing validation for email format, password strength.
+  // TODO: Add validation for email format, password strength.
+  const { email, password, username } = req.body;
 
   // NOTE: Find user in in-memory array by email
   // HACK: using an in-memory array for users;
@@ -66,12 +76,16 @@ router.post('/login', async (req, res) => {
   }
 
   // NOTE: Generate JWT token with user's email
-  const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET, {
-    expiresIn: '1h',
-  });
+  const token = jwt.sign(
+    { email: user.email, username: user.username },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: '1h',
+    },
+  );
 
   // NOTE: Respond with token for client to store and use
-  res.json({ token });
+  res.json({ token, user: { email: user.email, username: user.username } });
 });
 
 // NOTE: This route simulates a logout operation

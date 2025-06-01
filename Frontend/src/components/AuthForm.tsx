@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 
@@ -9,11 +8,11 @@ type AuthFormProps = {
 export default function AuthForm({ type }: AuthFormProps) {
   // NOTE: form state for : email, password, and message,
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
 
   const { login } = useAuth();
-  const navigate = useNavigate();
 
   /**
    * Handles form submission for login or registration.
@@ -33,16 +32,17 @@ export default function AuthForm({ type }: AuthFormProps) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, username }),
       });
       const data = await res.json();
 
       if (res.ok) {
         // NOTE: log in store token and navigate to dashboard
-        login(data.token);
+        login(data.token, data.user.username);
         // NOTE: reset form fields after successful login or register
         setEmail('');
         setPassword('');
+        setUsername('');
       } else {
         setMessage(data.message || 'Something went wrong. Please try again.');
       }
@@ -58,6 +58,16 @@ export default function AuthForm({ type }: AuthFormProps) {
       </h2>
       {/* Form for login or register */}
       <form onSubmit={handleSubmit} className='space-y-4'>
+        {type === 'register' && (
+          <input
+            type='text'
+            placeholder='username'
+            className='w-full p-2 border rounded font-bold'
+            value={username}
+            onChange={e => setUsername(e.target.value)}
+            required
+          />
+        )}
         <input
           type='email'
           placeholder='email'
