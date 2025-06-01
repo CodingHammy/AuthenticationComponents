@@ -13,12 +13,14 @@ dotenv.config();
 const users = [];
 
 router.post('/register', async (req, res) => {
-  // HACK: missing validation for email format, password strength and username.
-  const { email, password } = req.body;
+  // HACK: missing validation for email format, password strength.
+  const { email, password, username } = req.body;
 
   // if no email or password is provided, return 400 error
-  if (!email || !password) {
-    return res.status(400).json({ message: 'Email and password are required' });
+  if (!email || !password || !username) {
+    return res
+      .status(400)
+      .json({ message: 'Email, username and password are required' });
   }
 
   // NOTE: check if user already exists (in memory array)
@@ -34,15 +36,23 @@ router.post('/register', async (req, res) => {
   // HACK: Saving user in memory array; replace with DB save
   // TODO: Implement DB persistence for new user
   const hashedPassword = await bcrypt.hash(password, 10);
-  const newUser = { email, password: hashedPassword };
+  const newUser = { email, username, password: hashedPassword };
   users.push(newUser);
 
   // NOTE: Generate JWT token for the new user
-  const token = jwt.sign({ email: newUser.email }, process.env.JWT_SECRET, {
-    expiresIn: '1h',
-  });
+  const token = jwt.sign(
+    { email: newUser.email, username: newUser.username },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: '1h',
+    },
+  );
 
-  res.status(201).json({ message: 'User registered successfully', token });
+  res.status(201).json({
+    message: 'User registered successfully',
+    token,
+    user: { email: newUser.email, username: newUser.username },
+  });
 });
 
 router.post('/login', async (req, res) => {
