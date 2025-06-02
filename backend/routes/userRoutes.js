@@ -4,6 +4,12 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+import {
+  validateEmail,
+  validatePassword,
+  validateUsername,
+} from '../utils/validation';
+
 // NOTE: import authenticateToken middleware for protecting routes
 const authenticateToken = require('../middlewares/authMiddleware');
 
@@ -13,14 +19,23 @@ dotenv.config();
 const users = [];
 
 router.post('/register', async (req, res) => {
-  // HACK: missing validation for email format, password strength.
-  const { email, password, username } = req.body;
+  // NOTE: extracts email and makes it lowercase
+  const email = req.body.email?.toLowerCase();
+  const { password, username } = req.body;
 
-  // if no email, username or password is provided, return 400 error
-  if (!email || !password || !username) {
-    return res
-      .status(400)
-      .json({ message: 'Email, username and password are required' });
+  const emailError = validateEmail(email);
+  const passwordError = validatePassword(password);
+  const usernameError = validateUsername(username);
+
+  // if email, username or password isn't valid , return 400 error with errors
+  if (emailError || passwordError || usernameError) {
+    return res.status(400).json({
+      errors: {
+        email: emailError,
+        password: passwordError,
+        username: usernameError,
+      },
+    });
   }
 
   // NOTE: check if user already exists (in memory array)
@@ -29,7 +44,7 @@ router.post('/register', async (req, res) => {
   if (existingUser) {
     // HACK: this checks if user exists in memory array
     // TODO: implement db query to check user exists
-    return res.status(400).json({ message: 'User already exists' });
+    return res.status(400).json({ errors: { email: 'User already exists' } });
   }
 
   // NOTE: Hash password before storing user
@@ -59,7 +74,7 @@ router.post('/login', async (req, res) => {
   // NOTE: Extracts email, username and password  from request body
   // HACK: missing validation for email format, password strength.
   // TODO: Add validation for email format, password strength.
-  const { email, password, username } = req.body;
+  const { email, password } = req.body;
 
   // NOTE: Find user in in-memory array by email
   // HACK: using an in-memory array for users;
