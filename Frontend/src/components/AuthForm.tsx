@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { validateEmail, validateUsername } from '../utils/authValidation';
+import {
+  validateEmail,
+  validateUsername,
+  validatePassword,
+} from '../utils/authValidation';
 
 type AuthFormProps = {
   type: 'login' | 'register';
@@ -9,6 +13,7 @@ type FormError = {
   email?: string | null;
   password?: string | null;
   username?: string | null;
+  general?: string | null;
 };
 
 export default function AuthForm({ type }: AuthFormProps) {
@@ -16,7 +21,6 @@ export default function AuthForm({ type }: AuthFormProps) {
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
 
   const [formError, setFormError] = useState<FormError>({});
 
@@ -28,11 +32,11 @@ export default function AuthForm({ type }: AuthFormProps) {
    */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage('');
+    setFormError({});
     // NOTE: endpoint is determined by the type of form, register or login
 
     const emailError = validateEmail(email);
-    const passwordError = validateEmail(password);
+    const passwordError = validatePassword(password);
     const usernameError = type === 'login' ? null : validateUsername(username);
 
     if (emailError || passwordError || usernameError) {
@@ -68,10 +72,14 @@ export default function AuthForm({ type }: AuthFormProps) {
         setPassword('');
         setUsername('');
       } else {
-        setMessage(data.message || 'Something went wrong. Please try again.');
+        setFormError(
+          data.errors || {
+            general: 'Something went wrong. Please try again.',
+          },
+        );
       }
     } catch (error) {
-      setMessage('server error. Please try again later.');
+      setFormError({ general: 'server error. Please try again later.' });
       console.error('Error:', error);
     }
   };
@@ -131,8 +139,11 @@ export default function AuthForm({ type }: AuthFormProps) {
           <span className='text-black font-bold'></span> {formError.password}
         </p>
       )}
-
-      {message && <p className='mt-4 text-center'>{message}</p>}
+      {formError.general && (
+        <p className='mt-4 text-center text-red-600'>
+          <span className='text-black font-bold'></span> {formError.general}
+        </p>
+      )}
     </div>
   );
 }
