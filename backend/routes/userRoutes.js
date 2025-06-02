@@ -72,22 +72,39 @@ router.post('/register', async (req, res) => {
 
 router.post('/login', async (req, res) => {
   // NOTE: Extracts email, username and password  from request body
-  // HACK: missing validation for email format, password strength.
+
   // TODO: Add validation for email format, password strength.
-  const { email, password } = req.body;
+  const email = req.body.email?.toLowerCase();
+  const { password } = req.body;
+
+  const emailError = validateEmail(email);
+  const passwordError = validatePassword(password);
+
+  if (emailError || passwordError) {
+    return res.status(400).json({
+      errors: {
+        email: emailError,
+        password: passwordError,
+      },
+    });
+  }
 
   // NOTE: Find user in in-memory array by email
   // HACK: using an in-memory array for users;
   // TODO: Replace this with a real database query
   const user = users.find(users => users.email === email);
   if (!user) {
-    return res.status(401).json({ message: 'Invalid email or password' });
+    return res
+      .status(401)
+      .json({ errors: { email: 'Invalid email or password' } });
   }
 
   // NOTE: compare input password with hashed password
   const isPasswordCorrect = await bcrypt.compare(password, user.password);
   if (!isPasswordCorrect) {
-    return res.status(401).json({ message: 'Invalid email or password' });
+    return res
+      .status(401)
+      .json({ errors: { email: 'Invalid email or password' } });
   }
 
   // NOTE: Generate JWT token with user's email
