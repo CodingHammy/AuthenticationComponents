@@ -1,8 +1,19 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import {
+  validateEmail,
+  validateUsername,
+  validatePassword,
+} from '../utils/authValidation';
 
 type AuthFormProps = {
   type: 'login' | 'register';
+};
+type FormError = {
+  email?: string | null;
+  password?: string | null;
+  username?: string | null;
+  general?: string | null;
 };
 
 export default function AuthForm({ type }: AuthFormProps) {
@@ -10,7 +21,8 @@ export default function AuthForm({ type }: AuthFormProps) {
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
+
+  const [formError, setFormError] = useState<FormError>({});
 
   const { login } = useAuth();
 
@@ -20,8 +32,24 @@ export default function AuthForm({ type }: AuthFormProps) {
    */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage('');
+    setFormError({});
     // NOTE: endpoint is determined by the type of form, register or login
+
+    const emailError = validateEmail(email);
+    const passwordError = validatePassword(password);
+    const usernameError = type === 'login' ? null : validateUsername(username);
+
+    if (emailError || passwordError || usernameError) {
+      setFormError({
+        email: emailError,
+        password: passwordError,
+        username: usernameError,
+      });
+      return;
+    } else {
+      setFormError({});
+    }
+
     const endPoint =
       type === 'register'
         ? 'http://localhost:3000/api/users/register'
@@ -44,10 +72,14 @@ export default function AuthForm({ type }: AuthFormProps) {
         setPassword('');
         setUsername('');
       } else {
-        setMessage(data.message || 'Something went wrong. Please try again.');
+        setFormError(
+          data.errors || {
+            general: 'Something went wrong. Please try again.',
+          },
+        );
       }
     } catch (error) {
-      setMessage('server error. Please try again later.');
+      setFormError({ general: 'server error. Please try again later.' });
       console.error('Error:', error);
     }
   };
@@ -91,8 +123,27 @@ export default function AuthForm({ type }: AuthFormProps) {
           {type === 'register' ? 'Register' : 'Login'}
         </button>
       </form>
+      {formError.username && (
+        <p className='mt-4 text-center text-red-600'>
+          <span className='text-black font-bold'></span> {formError.username}
+        </p>
+      )}
 
-      {message && <p className='mt-4 text-center'>{message}</p>}
+      {formError.email && (
+        <p className='mt-4 text-center text-red-600'>
+          <span className='text-black font-bold'></span> {formError.email}
+        </p>
+      )}
+      {formError.password && (
+        <p className='mt-4 text-center text-red-600'>
+          <span className='text-black font-bold'></span> {formError.password}
+        </p>
+      )}
+      {formError.general && (
+        <p className='mt-4 text-center text-red-600'>
+          <span className='text-black font-bold'></span> {formError.general}
+        </p>
+      )}
     </div>
   );
 }

@@ -7,7 +7,7 @@ const authenticateToken = (req, res, next) => {
   if (!token) {
     return res
       .status(401)
-      .json({ message: 'Access denied, No token provided' });
+      .json({ errors: { general: 'Access denied, No token provided' } });
   }
 
   // TODO change the JWT_SECRET to an environment variable
@@ -15,7 +15,7 @@ const authenticateToken = (req, res, next) => {
     if (err) {
       return res
         .status(403)
-        .json({ message: 'Invalid token or expired token.' });
+        .json({ errors: { general: 'Invalid token or expired token.' } });
     }
     // NOTE: user contains the decoded JWT payload (e.g., email, iat, exp)
     req.user = user;
