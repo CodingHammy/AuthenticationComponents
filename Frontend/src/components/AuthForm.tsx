@@ -1,8 +1,14 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { validateEmail, validateUsername } from '../utils/authValidation';
 
 type AuthFormProps = {
   type: 'login' | 'register';
+};
+type FormError = {
+  email?: string | null;
+  password?: string | null;
+  username?: string | null;
 };
 
 export default function AuthForm({ type }: AuthFormProps) {
@@ -11,6 +17,8 @@ export default function AuthForm({ type }: AuthFormProps) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
+
+  const [formError, setFormError] = useState<FormError>({});
 
   const { login } = useAuth();
 
@@ -22,6 +30,22 @@ export default function AuthForm({ type }: AuthFormProps) {
     e.preventDefault();
     setMessage('');
     // NOTE: endpoint is determined by the type of form, register or login
+
+    const emailError = validateEmail(email);
+    const passwordError = validateEmail(password);
+    const usernameError = type === 'login' ? null : validateUsername(username);
+
+    if (emailError || passwordError || usernameError) {
+      setFormError({
+        email: emailError,
+        password: passwordError,
+        username: usernameError,
+      });
+      return;
+    } else {
+      setFormError({});
+    }
+
     const endPoint =
       type === 'register'
         ? 'http://localhost:3000/api/users/register'
@@ -91,6 +115,22 @@ export default function AuthForm({ type }: AuthFormProps) {
           {type === 'register' ? 'Register' : 'Login'}
         </button>
       </form>
+      {formError.username && (
+        <p className='mt-4 text-center text-red-600'>
+          <span className='text-black font-bold'></span> {formError.username}
+        </p>
+      )}
+
+      {formError.email && (
+        <p className='mt-4 text-center text-red-600'>
+          <span className='text-black font-bold'></span> {formError.email}
+        </p>
+      )}
+      {formError.password && (
+        <p className='mt-4 text-center text-red-600'>
+          <span className='text-black font-bold'></span> {formError.password}
+        </p>
+      )}
 
       {message && <p className='mt-4 text-center'>{message}</p>}
     </div>
