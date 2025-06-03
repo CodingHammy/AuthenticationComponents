@@ -1,15 +1,15 @@
 const dotenv = require('dotenv');
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 
-import {
+const {
   validateEmail,
   validatePassword,
   validateUsername,
-} from '../utils/validation';
+} = require('../utils/authValidation');
 
 // NOTE: import authenticateToken middleware for protecting routes
 const authenticateToken = require('../middlewares/authMiddleware');

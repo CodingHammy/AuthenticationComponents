@@ -1,4 +1,4 @@
-export function validateEmail(email) {
+function validateEmail(email) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!email || !emailRegex.test(email)) {
     return 'Invalid email format';
@@ -6,7 +6,7 @@ export function validateEmail(email) {
   return null;
 }
 
-export function validatePassword(password) {
+function validatePassword(password) {
   const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 
   if (!password || !strongPasswordRegex.test(password)) {
@@ -15,7 +15,7 @@ export function validatePassword(password) {
   return null;
 }
 
-export function validateUsername(username) {
+function validateUsername(username) {
   if (!username || /\s/.test(username)) return 'Username is required';
 
   if (username.length > 8 || username.length < 3) {
@@ -23,3 +23,9 @@ export function validateUsername(username) {
   }
   return null;
 }
+
+module.exports = {
+  validateEmail,
+  validatePassword,
+  validateUsername,
+};
