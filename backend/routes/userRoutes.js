@@ -3,20 +3,18 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 
-import {
+const {
   validateEmail,
   validatePassword,
   validateUsername,
-} from '../utils/validation';
+} = require('../utils/authValidation');
 
 // NOTE: import authenticateToken middleware for protecting routes
 const authenticateToken = require('../middlewares/authMiddleware');
 
 dotenv.config();
-// Hack: using in-memory storage for users; not suitable for production
-// TODO: Replace this with a real database for persistent storage
-const users = [];
 
 router.post('/register', async (req, res) => {
   // NOTE: extracts email and makes it lowercase
@@ -38,21 +36,19 @@ router.post('/register', async (req, res) => {
     });
   }
 
-  // NOTE: check if user already exists (in memory array)
-  const existingUser = users.find(user => user.email === email);
+  // NOTE: check if user already exists
+  // const existingUser = users.find(user => user.email === email);
+  const existingUser = await User.findOne({ email });
 
   if (existingUser) {
-    // HACK: this checks if user exists in memory array
-    // TODO: implement db query to check user exists
     return res.status(400).json({ errors: { email: 'User already exists' } });
   }
 
   // NOTE: Hash password before storing user
-  // HACK: Saving user in memory array; replace with DB save
-  // TODO: Implement DB persistence for new user
   const hashedPassword = await bcrypt.hash(password, 10);
-  const newUser = { email, username, password: hashedPassword };
-  users.push(newUser);
+
+  const newUser = User({ email, username, password: hashedPassword });
+  await newUser.save();
 
   // NOTE: Generate JWT token for the new user
   const token = jwt.sign(
@@ -73,7 +69,6 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   // NOTE: Extracts email, username and password  from request body
 
-  // TODO: Add validation for email format, password strength.
   const email = req.body.email?.toLowerCase();
   const { password } = req.body;
 
@@ -89,19 +84,13 @@ router.post('/login', async (req, res) => {
     });
   }
 
-  // NOTE: Find user in in-memory array by email
-  // HACK: using an in-memory array for users;
-  // TODO: Replace this with a real database query
-  const user = users.find(users => users.email === email);
-  if (!user) {
-    return res
-      .status(401)
-      .json({ errors: { email: 'Invalid email or password' } });
-  }
+  // NOTE: Find user in in db
 
-  // NOTE: compare input password with hashed password
-  const isPasswordCorrect = await bcrypt.compare(password, user.password);
-  if (!isPasswordCorrect) {
+  const user = await User.findOne({ email }).select('+password');
+  // NOTE: checks if user exists then compare input password with hashed password
+  const isPasswordCorrect =
+    user && (await bcrypt.compare(password, user.password));
+  if (!user || !isPasswordCorrect) {
     return res
       .status(401)
       .json({ errors: { email: 'Invalid email or password' } });
