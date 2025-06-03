@@ -38,7 +38,7 @@ router.post('/register', async (req, res) => {
 
   // NOTE: check if user already exists
   // const existingUser = users.find(user => user.email === email);
-  const existingUser = User.findOne({ email });
+  const existingUser = await User.findOne({ email });
 
   if (existingUser) {
     // HACK: this checks if user exists in memory array
@@ -71,7 +71,6 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   // NOTE: Extracts email, username and password  from request body
 
-  // TODO: Add validation for email format, password strength.
   const email = req.body.email?.toLowerCase();
   const { password } = req.body;
 
@@ -87,10 +86,9 @@ router.post('/login', async (req, res) => {
     });
   }
 
-  // NOTE: Find user in in-memory array by email
-  // HACK: using an in-memory array for users;
-  // TODO: Replace this with a real database query
-  const user = users.find(user => user.email === email);
+  // NOTE: Find user in in db
+
+  const user = await User.findOne({ email }).select('+password');
   // NOTE: checks if user exists then compare input password with hashed password
   const isPasswordCorrect =
     user && (await bcrypt.compare(password, user.password));
