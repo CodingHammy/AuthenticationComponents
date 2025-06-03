@@ -1,10 +1,12 @@
 require('dotenv').config();
+const connectDB = require('./config/db');
 const cors = require('cors');
-
 // NOTE: imports user-relateed route (login, register and protected dashboard route)
 const userRoutes = require('./routes/userRoutes');
-
 const express = require('express');
+
+connectDB(); // Connect to MongoDB
+
 const app = express();
 
 const port = process.env.PORT || 3000;
