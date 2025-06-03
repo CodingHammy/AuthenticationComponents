@@ -92,16 +92,11 @@ router.post('/login', async (req, res) => {
   // NOTE: Find user in in-memory array by email
   // HACK: using an in-memory array for users;
   // TODO: Replace this with a real database query
-  const user = users.find(users => users.email === email);
-  if (!user) {
-    return res
-      .status(401)
-      .json({ errors: { email: 'Invalid email or password' } });
-  }
-
-  // NOTE: compare input password with hashed password
-  const isPasswordCorrect = await bcrypt.compare(password, user.password);
-  if (!isPasswordCorrect) {
+  const user = users.find(user => user.email === email);
+  // NOTE: checks if user exists then compare input password with hashed password
+  const isPasswordCorrect =
+    user && (await bcrypt.compare(password, user.password));
+  if (!user || !isPasswordCorrect) {
     return res
       .status(401)
       .json({ errors: { email: 'Invalid email or password' } });
