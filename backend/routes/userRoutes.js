@@ -1,6 +1,7 @@
 const dotenv = require('dotenv');
 const express = require('express');
 const router = express.Router();
+const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -14,9 +15,6 @@ import {
 const authenticateToken = require('../middlewares/authMiddleware');
 
 dotenv.config();
-// Hack: using in-memory storage for users; not suitable for production
-// TODO: Replace this with a real database for persistent storage
-const users = [];
 
 router.post('/register', async (req, res) => {
   // NOTE: extracts email and makes it lowercase
@@ -38,8 +36,9 @@ router.post('/register', async (req, res) => {
     });
   }
 
-  // NOTE: check if user already exists (in memory array)
-  const existingUser = users.find(user => user.email === email);
+  // NOTE: check if user already exists
+  // const existingUser = users.find(user => user.email === email);
+  const existingUser = User.findOne({ email });
 
   if (existingUser) {
     // HACK: this checks if user exists in memory array
@@ -48,11 +47,10 @@ router.post('/register', async (req, res) => {
   }
 
   // NOTE: Hash password before storing user
-  // HACK: Saving user in memory array; replace with DB save
-  // TODO: Implement DB persistence for new user
   const hashedPassword = await bcrypt.hash(password, 10);
-  const newUser = { email, username, password: hashedPassword };
-  users.push(newUser);
+
+  const newUser = User({ email, username, password: hashedPassword });
+  await newUser.save();
 
   // NOTE: Generate JWT token for the new user
   const token = jwt.sign(
