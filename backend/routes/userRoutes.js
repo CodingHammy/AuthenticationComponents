@@ -120,7 +120,6 @@ router.post('/logout', (req, res) => {
 
 // NOTE: Protected route - only accessible with a valid jwt
 // NOTE: Token is verified using authenticateToken middleware
-// TODO: Customize dashboard data based on authenticated user
 router.get('/dashboard', authenticateToken, (req, res) => {
   res.status(200).json({
     message: 'Welcome to the dashboard! ',
