@@ -3,6 +3,7 @@
 // TODO: later update authform to intergrate the new timer logic
 
 import { createContext, useContext, useEffect, useState } from 'react';
+import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
 
 type AuthContextType = {
@@ -29,7 +30,48 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [username, setUsername] = useState<string | null>(() => {
     return localStorage.getItem('username');
   });
+
+  const [logoutTimerId, setLogoutTimerId] = useState<ReturnType<
+    typeof setTimeout
+  > | null>(null);
+
   const navigate = useNavigate();
+
+  function getTokenExpiration(token: string): number {
+    // NOTE: decode the token to get the expiration time
+    const decoded: { exp: number } = jwtDecode(token);
+    return decoded.exp * 1000; // Convert to milliseconds
+  }
+
+  const startTokenValidationCountdown = (token: string) => {
+    // NOTE if there is exisiting timer, clear it
+    if (logoutTimerId) {
+      clearTimeout(logoutTimerId);
+    }
+    // NOTE: get the expiration time from the token
+    const expirationTime = getTokenExpiration(token);
+    const currentTime = Date.now();
+    // NOTE: time left in millieseconds
+    const miliSecondsUntilExpiration = expirationTime - currentTime;
+
+    // NOTE: if time left wait until expiration or just validate immediately
+    if (miliSecondsUntilExpiration > 0) {
+      const timerID = setTimeout(() => {
+        logout();
+      }, miliSecondsUntilExpiration);
+      setLogoutTimerId(timerID);
+    } else {
+      logout(); // Token already expired, validate immediately
+    }
+  };
+
+  // NOTE: cancels countdown timer for token validation - when logging out
+  const cancelValidationCountdown = () => {
+    if (logoutTimerId) {
+      clearTimeout(logoutTimerId);
+      setLogoutTimerId(null);
+    }
+  };
 
   // NOTE: the login function sets the token and navigate to dashboard if successful
   // NOTE this function is called when the users clicks login button in AuthForm component
@@ -40,9 +82,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     //NOTE: updates token state state
     setToken(newToken);
     setUsername(username);
+
+    // NOTE: Start countdown for token validation
+    startTokenValidationCountdown(newToken);
+
     //TODO: check if i can avoid running validateToken here
     //      we know that the token is valid because the login creates a new token
-    await validateToken();
+    // await validateToken();
+    setAuthenticated(true); //NOTE: sets authenticated to true
     //NOTE: navigates to dashboard
     navigate('/dashboard', { replace: true });
   };
@@ -55,6 +102,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.removeItem('token');
     localStorage.removeItem('username');
     //NOTE: resets token state
+
+    //NOTE cancels the countdown timer for token validation
+    cancelValidationCountdown();
+
     setToken(null);
     setUsername(null);
     //NOTE: marks user as not authenticated
