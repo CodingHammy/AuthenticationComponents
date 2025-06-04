@@ -43,10 +43,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return decoded.exp * 1000; // Convert to milliseconds
   }
 
-  const startTokenExpiryTimer = (token: string) => {
+  const startTokenValidationCountdown = (token: string) => {
     // NOTE if there is exisiting timer, clear it
     if (logoutTimerId) {
-      // Clear any existing timer
       clearTimeout(logoutTimerId);
     }
     // NOTE: get the expiration time from the token
@@ -67,7 +66,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   // NOTE: cancels countdown timer for token validation - when logging out
-  const cancelTimeUntilValidationOfJWT = () => {
+  const cancelValidationCountdown = () => {
     if (logoutTimerId) {
       clearTimeout(logoutTimerId);
       setLogoutTimerId(null);
@@ -83,9 +82,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     //NOTE: updates token state state
     setToken(newToken);
     setUsername(username);
+
+    // NOTE: Start countdown for token validation
+    startTokenValidationCountdown(newToken);
+
     //TODO: check if i can avoid running validateToken here
     //      we know that the token is valid because the login creates a new token
-    await validateToken();
+    // await validateToken();
+    setAuthenticated(true); //NOTE: sets authenticated to true
     //NOTE: navigates to dashboard
     navigate('/dashboard', { replace: true });
   };
@@ -98,6 +102,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.removeItem('token');
     localStorage.removeItem('username');
     //NOTE: resets token state
+
+    //NOTE cancels the countdown timer for token validation
+    cancelValidationCountdown();
+
     setToken(null);
     setUsername(null);
     //NOTE: marks user as not authenticated
