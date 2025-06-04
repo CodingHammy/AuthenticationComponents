@@ -1,5 +1,6 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useEffect } from 'react';
 
 type Props = {
   children: React.JSX.Element;
@@ -7,7 +8,15 @@ type Props = {
 
 // NOTE: Protects routes from unauthenticated access
 const PrivateRoute = ({ children }: Props) => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, validateToken } = useAuth();
+
+  // NOTE: makes sure backend sercures private routes
+  useEffect(() => {
+    const checkToken = async () => {
+      await validateToken();
+    };
+    checkToken();
+  }, []);
 
   // NOTES: Wait for auth status to be determined before rendering Children
   if (isLoading) {
