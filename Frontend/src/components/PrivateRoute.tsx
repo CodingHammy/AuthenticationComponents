@@ -16,6 +16,7 @@ const PrivateRoute = ({ children }: Props) => {
       await validateToken();
     };
     checkToken();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // NOTES: Wait for auth status to be determined before rendering Children

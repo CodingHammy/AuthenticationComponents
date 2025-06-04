@@ -57,11 +57,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // NOTE: if time left wait until expiration or just validate immediately
     if (miliSecondsUntilExpiration > 0) {
       const timerID = setTimeout(() => {
-        validateToken();
+        logout();
       }, miliSecondsUntilExpiration);
       setLogoutTimerId(timerID);
     } else {
-      validateToken(); // Token already expired, validate immediately
+      logout(); // Token already expired, validate immediately
     }
   };
 

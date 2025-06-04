@@ -55,7 +55,7 @@ router.post('/register', async (req, res) => {
     { email: newUser.email, username: newUser.username },
     process.env.JWT_SECRET,
     {
-      expiresIn: '1h',
+      expiresIn: '1m',
     },
   );
 
@@ -101,7 +101,7 @@ router.post('/login', async (req, res) => {
     { email: user.email, username: user.username },
     process.env.JWT_SECRET,
     {
-      expiresIn: '1h',
+      expiresIn: '1m',
     },
   );
 
