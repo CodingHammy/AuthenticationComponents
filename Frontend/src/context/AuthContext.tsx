@@ -86,9 +86,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // NOTE: Start countdown for token validation
     startTokenValidationCountdown(newToken);
 
-    //TODO: check if i can avoid running validateToken here
-    //      we know that the token is valid because the login creates a new token
-    // await validateToken();
     setAuthenticated(true); //NOTE: sets authenticated to true
     //NOTE: navigates to dashboard
     navigate('/dashboard', { replace: true });
@@ -96,7 +93,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   //  NOTE: the logout function removes the token from localstorage, and token state, sets authenticated to false and navigates to the login page
   // NOTE this function is called when the users clicks logout button in navbar component and is also in the dashboard page
-  // TODO: implement a timer to automatically logout the user after a certain period of inactivity
   const logout = () => {
     //NOTE: removes token from localstorage
     localStorage.removeItem('token');
@@ -116,7 +112,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // NOTE: the validateToken function checks if the token is valid by making a request to the dashboard endpoint, if valid it sets authenticated to true, which is used to determine whether the user can access protected routes, if not valid it calls the logout function
   // NOTE this function is called when the app loads and also when the user logs in
-  // TODO: implement a timer-based auto-logout for session expiration or inactivity
   const validateToken = async () => {
     const token = localStorage.getItem('token');
     //NOTE: if no token is found, user is not authenticated stops loading to unblock navigate
