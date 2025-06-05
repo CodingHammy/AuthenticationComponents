@@ -53,11 +53,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // NOTE: if time left wait until expiration or just validate immediately
     if (miliSecondsUntilExpiration > 0) {
       const timerID = setTimeout(() => {
-        logout();
+        logout('Your session has expired.');
       }, miliSecondsUntilExpiration);
       setLogoutTimerId(timerID);
     } else {
-      logout(); // Token already expired, validate immediately
+      logout('Your session has expired.'); // Token already expired, validate immediately
     }
   };
 
@@ -89,7 +89,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   //  NOTE: the logout function removes the token from localstorage, and token state, sets authenticated to false and navigates to the login page
   // NOTE this function is called when the users clicks logout button in navbar component and is also in the dashboard page
-  const logout = () => {
+  const logout = (message = 'default') => {
     //NOTE: removes token from localstorage
     localStorage.removeItem('token');
     localStorage.removeItem('username');
@@ -102,12 +102,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setUsername(null);
     //NOTE: marks user as not authenticated
     setAuthenticated(false);
+
     //NOTE: navigates to login page
-    navigate('/', { replace: true });
+    if (message === 'default') {
+      navigate('/', { replace: true });
+    } else {
+      navigate('/info', { replace: true, state: { message } });
+    }
   };
 
   // NOTE: the validateToken function checks if the token is valid by making a request to the dashboard endpoint, if valid it sets authenticated to true, which is used to determine whether the user can access protected routes, if not valid it calls the logout function
   // NOTE this function is called when the app loads and also when the user logs in
+
   const validateToken = async () => {
     const token = localStorage.getItem('token');
     //NOTE: if no token is found, user is not authenticated stops loading to unblock navigate
@@ -131,17 +137,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       // NOTE: token is valid if the response is ok
       if (res.ok) {
         setAuthenticated(true);
-      } else {
-        // NOTE: token is invalid or expired, calls logout
-        logout();
       }
       if (res.status === 401) {
-        console.error('Token expired or invalid');
-        logout();
+        // NOTE: if the response is 401, token is invalid or expired
+        console.warn('Token is invalid or expired');
+        logout('Token is invalid or expired.');
       }
       if (res.status >= 500) {
-        console.error('Server error, please try again later');
-        logout();
+        // NOTE: if the response is 500, there is an internal server error
+        console.error('Internal server error');
+        logout('Internal server error.');
       }
     } catch (error) {
       console.error('Error validating token:', error);

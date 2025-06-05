@@ -56,7 +56,7 @@ router.post('/register', async (req, res) => {
     process.env.JWT_SECRET,
     {
       // TODO: Set time to 1hr after testing
-      expiresIn: '1m',
+      expiresIn: '10000ms',
     },
   );
 
@@ -103,7 +103,7 @@ router.post('/login', async (req, res) => {
     process.env.JWT_SECRET,
     {
       // TODO: Set time to 1hr after testing
-      expiresIn: '1m',
+      expiresIn: '10000ms',
     },
   );
 
