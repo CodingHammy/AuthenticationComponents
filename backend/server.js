@@ -23,8 +23,6 @@ app.use(
 // NOTE: mount user authenticated route under /api/users
 app.use('/api/users', userRoutes);
 
-// TODO: Connect to MONGODB to store persisted user data
-
 app.listen(port, () => {
   console.log(`listening on https://localhost:${port}`);
 });

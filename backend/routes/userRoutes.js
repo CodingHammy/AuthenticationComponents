@@ -55,6 +55,7 @@ router.post('/register', async (req, res) => {
     { email: newUser.email, username: newUser.username },
     process.env.JWT_SECRET,
     {
+      // TODO: Set time to 1hr after testing
       expiresIn: '1m',
     },
   );
@@ -101,6 +102,7 @@ router.post('/login', async (req, res) => {
     { email: user.email, username: user.username },
     process.env.JWT_SECRET,
     {
+      // TODO: Set time to 1hr after testing
       expiresIn: '1m',
     },
   );
@@ -110,8 +112,7 @@ router.post('/login', async (req, res) => {
 });
 
 // NOTE: This route simulates a logout operation
-// HACK: No real session/token invalidation occurs on the server
-// TODO: Implement token blacklist or proper session handling if needed
+// INFO: Token blacklist is not implemented. For higher security, consider it in future.
 router.post('/logout', (req, res) => {
   res.status(200).json({
     message: 'Logged out successfully, please remove token from the client',
