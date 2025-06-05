@@ -1,7 +1,3 @@
-// TODO: Implement startTokenExpiryTimer and stopTokenExpiryTimer
-//       to manage token validation timer and call validateToken()    when timer expires.
-// TODO: later update authform to intergrate the new timer logic
-
 import { createContext, useContext, useEffect, useState } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
@@ -139,8 +135,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // NOTE: token is invalid or expired, calls logout
         logout();
       }
-      // HACK: aggressive error handling, could be improved
-      // TODO: improve error handling - distinguish between 401(expired token) 500+(server error) and retry if appropriate
+      if (res.status === 401) {
+        console.error('Token expired or invalid');
+        logout();
+      }
+      if (res.status >= 500) {
+        console.error('Server error, please try again later');
+        logout();
+      }
     } catch (error) {
       console.error('Error validating token:', error);
       logout();
