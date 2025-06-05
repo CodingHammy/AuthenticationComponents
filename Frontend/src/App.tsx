@@ -4,6 +4,7 @@ import DashboardPage from './pages/DashboardPage';
 import RegisterPage from './pages/RegisterPage';
 import PrivateRoute from './components/PrivateRoute';
 import NavBar from './components/NavBar';
+import SessionExpiredPage from './pages/SessionExpiredPage';
 
 function App() {
   return (
@@ -12,9 +13,9 @@ function App() {
       <NavBar />
       <Routes>
         {/* public routes */}
+        <Route path='/info' element={<SessionExpiredPage />} />
         <Route path='/' element={<LoginPage />} />
         <Route path='/register' element={<RegisterPage />} />
-
         {/* private routes - only accessible if authenticated */}
         <Route
           path='/dashboard'
