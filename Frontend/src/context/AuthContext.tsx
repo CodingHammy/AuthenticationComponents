@@ -1,7 +1,3 @@
-// TODO: Implement startTokenExpiryTimer and stopTokenExpiryTimer
-//       to manage token validation timer and call validateToken()    when timer expires.
-// TODO: later update authform to intergrate the new timer logic
-
 import { createContext, useContext, useEffect, useState } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
@@ -86,9 +82,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // NOTE: Start countdown for token validation
     startTokenValidationCountdown(newToken);
 
-    //TODO: check if i can avoid running validateToken here
-    //      we know that the token is valid because the login creates a new token
-    // await validateToken();
     setAuthenticated(true); //NOTE: sets authenticated to true
     //NOTE: navigates to dashboard
     navigate('/dashboard', { replace: true });
@@ -96,7 +89,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   //  NOTE: the logout function removes the token from localstorage, and token state, sets authenticated to false and navigates to the login page
   // NOTE this function is called when the users clicks logout button in navbar component and is also in the dashboard page
-  // TODO: implement a timer to automatically logout the user after a certain period of inactivity
   const logout = () => {
     //NOTE: removes token from localstorage
     localStorage.removeItem('token');
@@ -116,7 +108,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // NOTE: the validateToken function checks if the token is valid by making a request to the dashboard endpoint, if valid it sets authenticated to true, which is used to determine whether the user can access protected routes, if not valid it calls the logout function
   // NOTE this function is called when the app loads and also when the user logs in
-  // TODO: implement a timer-based auto-logout for session expiration or inactivity
   const validateToken = async () => {
     const token = localStorage.getItem('token');
     //NOTE: if no token is found, user is not authenticated stops loading to unblock navigate
@@ -144,8 +135,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // NOTE: token is invalid or expired, calls logout
         logout();
       }
-      // HACK: aggressive error handling, could be improved
-      // TODO: improve error handling - distinguish between 401(expired token) 500+(server error) and retry if appropriate
+      if (res.status === 401) {
+        console.error('Token expired or invalid');
+        logout();
+      }
+      if (res.status >= 500) {
+        console.error('Server error, please try again later');
+        logout();
+      }
     } catch (error) {
       console.error('Error validating token:', error);
       logout();

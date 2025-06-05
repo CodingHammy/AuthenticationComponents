@@ -10,7 +10,6 @@ const authenticateToken = (req, res, next) => {
       .json({ errors: { general: 'Access denied, No token provided' } });
   }
 
-  // TODO change the JWT_SECRET to an environment variable
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
     if (err) {
       return res

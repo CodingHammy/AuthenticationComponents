@@ -8,7 +8,6 @@ export default function DashboardPage() {
     logout();
   };
 
-  // Hack: only first name is capitalised
   const UsernameCaptilised =
     username!.charAt(0).toUpperCase() + username!.slice(1);
 
