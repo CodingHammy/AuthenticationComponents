@@ -17,6 +17,15 @@ export function validatePassword(password: string): string | null {
   return null;
 }
 
+export function validateConfirmedPassword(
+  password: string,
+  confirmedPassword: string,
+): string | null {
+  if (!password) return 'Password is required';
+  if (password !== confirmedPassword) return 'Passwords do not match';
+  return null;
+}
+
 export function validateUsername(username: string): string | null {
   if (!username) return 'Username is required';
   if (username.length < 3) return 'Username must be at least 3 characters long';
