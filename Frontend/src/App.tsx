@@ -5,6 +5,7 @@ import RegisterPage from './pages/RegisterPage';
 import PrivateRoute from './components/PrivateRoute';
 import NavBar from './components/NavBar';
 import SessionExpiredPage from './pages/SessionExpiredPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 
 function App() {
   return (
@@ -22,6 +23,14 @@ function App() {
           element={
             <PrivateRoute>
               <DashboardPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path='/reset-password'
+          element={
+            <PrivateRoute>
+              <ResetPasswordPage />
             </PrivateRoute>
           }
         />
