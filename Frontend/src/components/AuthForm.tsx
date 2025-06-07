@@ -22,6 +22,7 @@ export default function AuthForm({ type }: AuthFormProps) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
+  const [disableButton, setDisableButton] = useState(false);
   const [formError, setFormError] = useState<FormError>({});
 
   const { login } = useAuth();
@@ -32,6 +33,7 @@ export default function AuthForm({ type }: AuthFormProps) {
    */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setDisableButton(true);
     setFormError({});
     // NOTE: endpoint is determined by the type of form, register or login
 
@@ -82,6 +84,7 @@ export default function AuthForm({ type }: AuthFormProps) {
       setFormError({ general: 'server error. Please try again later.' });
       console.error('Error:', error);
     }
+    setDisableButton(false);
   };
   return (
     <div className='max-w-md mx-auto p-4'>
@@ -117,6 +120,7 @@ export default function AuthForm({ type }: AuthFormProps) {
           required
         />
         <button
+          disabled={disableButton}
           type='submit'
           className='w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700'
         >
