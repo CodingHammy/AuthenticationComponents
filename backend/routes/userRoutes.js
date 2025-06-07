@@ -47,12 +47,12 @@ router.post('/register', async (req, res) => {
   // NOTE: Hash password before storing user
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  const newUser = User({ email, email, password: hashedPassword });
+  const newUser = User({ email, username, password: hashedPassword });
   await newUser.save();
 
   // NOTE: Generate JWT token for the new user
   const token = jwt.sign(
-    { email: newUser.email, email: newUser.email },
+    { email: newUser.email, username: newUser.username },
     process.env.JWT_SECRET,
     {
       // TODO: Set time to 1hr after testing

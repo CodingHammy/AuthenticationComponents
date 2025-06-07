@@ -59,7 +59,7 @@ export default function ResetPasswordPage() {
 
       const data = await res.json();
       if (res.ok) {
-        login(data.token, data.user.email);
+        login(data.token, data.user.emailusername);
         setEmail('');
         setNewPassword('');
         setConfirmNewPassword('');
