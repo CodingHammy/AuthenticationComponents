@@ -59,7 +59,7 @@ export default function ResetPasswordPage() {
 
       const data = await res.json();
       if (res.ok) {
-        login(data.token, data.user);
+        login(data.token, data.user.email);
         setEmail('');
         setNewPassword('');
         setConfirmNewPassword('');
@@ -130,7 +130,8 @@ export default function ResetPasswordPage() {
       )}
       {formError.confirmPassword && (
         <p className='mt-4 text-center text-red-600'>
-          <span className='text-black font-bold'></span> {formError.password}
+          <span className='text-black font-bold'></span>{' '}
+          {formError.confirmPassword}
         </p>
       )}
       {formError.general && (

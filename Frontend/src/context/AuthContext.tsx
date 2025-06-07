@@ -5,8 +5,8 @@ import { useNavigate } from 'react-router-dom';
 type AuthContextType = {
   isAuthenticated: boolean;
   token: string | null;
-  username: string | null;
-  login: (token: string, username: string) => void;
+  email: string | null;
+  login: (token: string, email: string) => void;
   logout: () => void;
   validateToken: () => Promise<void>;
   isLoading: boolean;
@@ -23,8 +23,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [token, setToken] = useState<string | null>(() => {
     return localStorage.getItem('token');
   });
-  const [username, setUsername] = useState<string | null>(() => {
-    return localStorage.getItem('username');
+  const [email, setEmail] = useState<string | null>(() => {
+    return localStorage.getItem('email');
   });
 
   const [logoutTimerId, setLogoutTimerId] = useState<ReturnType<
@@ -71,13 +71,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // NOTE: the login function sets the token and navigate to dashboard if successful
   // NOTE this function is called when the users clicks login button in AuthForm component
-  const login = async (newToken: string, username: string) => {
+  const login = async (newToken: string, email: string) => {
     //NOTE: stores token to localstorage
     localStorage.setItem('token', newToken);
-    localStorage.setItem('username', username);
+    localStorage.setItem('email', email);
     //NOTE: updates token state state
     setToken(newToken);
-    setUsername(username);
+    setEmail(email);
 
     // NOTE: Start countdown for token validation
     startTokenValidationCountdown(newToken);
@@ -92,14 +92,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const logout = (message = 'default') => {
     //NOTE: removes token from localstorage
     localStorage.removeItem('token');
-    localStorage.removeItem('username');
+    localStorage.removeItem('email');
     //NOTE: resets token state
 
     //NOTE cancels the countdown timer for token validation
     cancelValidationCountdown();
 
     setToken(null);
-    setUsername(null);
+    setEmail(null);
     //NOTE: marks user as not authenticated
     setAuthenticated(false);
 
@@ -169,7 +169,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         isAuthenticated,
         isLoading,
         token,
-        username,
+        email,
         login,
         logout,
         validateToken,

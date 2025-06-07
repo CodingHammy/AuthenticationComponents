@@ -47,16 +47,16 @@ router.post('/register', async (req, res) => {
   // NOTE: Hash password before storing user
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  const newUser = User({ email, username, password: hashedPassword });
+  const newUser = User({ email, email, password: hashedPassword });
   await newUser.save();
 
   // NOTE: Generate JWT token for the new user
   const token = jwt.sign(
-    { email: newUser.email, username: newUser.username },
+    { email: newUser.email, email: newUser.email },
     process.env.JWT_SECRET,
     {
       // TODO: Set time to 1hr after testing
-      expiresIn: '10000ms',
+      expiresIn: '1hr',
     },
   );
 
@@ -103,7 +103,7 @@ router.post('/login', async (req, res) => {
     process.env.JWT_SECRET,
     {
       // TODO: Set time to 1hr after testing
-      expiresIn: '10000ms',
+      expiresIn: '1hr',
     },
   );
 
