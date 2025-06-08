@@ -19,10 +19,12 @@ export default function ResetPasswordPage() {
   const [email, setEmail] = useState('');
   const [disableButton, setDisableButton] = useState(false);
   const [formError, setFormError] = useState<FormError>({});
-  const { login } = useAuth();
 
-  const handleSumbit = async (e: React.FormEvent) => {
+  const { logout } = useAuth();
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     setDisableButton(true);
     setFormError({});
 
@@ -42,7 +44,6 @@ export default function ResetPasswordPage() {
       setDisableButton(false);
       return;
     } else {
-      alert('Form is valid, submitting...');
       setFormError({});
     }
     try {
@@ -59,7 +60,6 @@ export default function ResetPasswordPage() {
 
       const data = await res.json();
       if (res.ok) {
-        login(data.token, data.user.emailusername);
         setEmail('');
         setNewPassword('');
         setConfirmNewPassword('');
@@ -76,13 +76,14 @@ export default function ResetPasswordPage() {
       console.error('Error', error);
     }
 
+    logout('Successfully Reset Password');
     setDisableButton(false);
   };
 
   return (
     <div className='max-w-md mx-auto p-4'>
       <h2 className='text-2xl font-bold mb-4'>Change Password</h2>
-      <form onSubmit={handleSumbit} className='space-y-4'>
+      <form onSubmit={handleSubmit} className='space-y-4'>
         <input
           type='email'
           name='email'
