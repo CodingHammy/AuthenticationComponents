@@ -56,7 +56,7 @@ router.post('/register', async (req, res) => {
     process.env.JWT_SECRET,
     {
       // TODO: Set time to 1hr after testing
-      expiresIn: '10000ms',
+      expiresIn: '1hr',
     },
   );
 
@@ -103,12 +103,47 @@ router.post('/login', async (req, res) => {
     process.env.JWT_SECRET,
     {
       // TODO: Set time to 1hr after testing
-      expiresIn: '10000ms',
+      expiresIn: '1hr',
     },
   );
 
   // NOTE: Respond with token for client to store and use
   res.json({ token, user: { email: user.email, username: user.username } });
+});
+
+router.post('/resetpassword', async (req, res) => {
+  const email = req.body.email?.toLowerCase();
+  const { newPassword } = req.body;
+
+  const emailError = validateEmail(email);
+  const passwordError = validatePassword(newPassword);
+
+  if (emailError || passwordError) {
+    return res.status(400).json({
+      errors: {
+        email: emailError,
+        password: passwordError,
+      },
+    });
+  }
+  try {
+    const existingUser = await User.findOne({ email });
+
+    if (!existingUser) {
+      return res.status(404).json({ errors: { email: 'User not found' } });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    existingUser.password = hashedPassword;
+    await existingUser.save();
+
+    res.status(200).json({
+      message: 'Password reset successfully',
+    });
+  } catch (error) {
+    console.error('Error resetting password:', error);
+    res.status(500).json({ errors: { general: 'Internal server error' } });
+  }
 });
 
 // NOTE: This route simulates a logout operation

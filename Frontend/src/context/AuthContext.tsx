@@ -7,7 +7,7 @@ type AuthContextType = {
   token: string | null;
   username: string | null;
   login: (token: string, username: string) => void;
-  logout: () => void;
+  logout: (message?: string) => void;
   validateToken: () => Promise<void>;
   isLoading: boolean;
 };
@@ -89,7 +89,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   //  NOTE: the logout function removes the token from localstorage, and token state, sets authenticated to false and navigates to the login page
   // NOTE this function is called when the users clicks logout button in navbar component and is also in the dashboard page
-  const logout = (message = 'default') => {
+  const logout = (message: string = 'default') => {
     //NOTE: removes token from localstorage
     localStorage.removeItem('token');
     localStorage.removeItem('username');

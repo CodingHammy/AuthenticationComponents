@@ -14,6 +14,7 @@ const PrivateRoute = ({ children }: Props) => {
   // NOTE: makes sure backend sercures private routes
   useEffect(() => {
     const checkToken = async () => {
+      console.log('Checking token validity...');
       await validateToken();
     };
     checkToken();
