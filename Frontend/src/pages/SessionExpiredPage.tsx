@@ -12,7 +12,7 @@ export default function SessionExpiredPage() {
   };
 
   return (
-    <div className='flex flex-col items-center justify-center h-screen max-w-md mx-auto'>
+    <div className='max-w-md mx-auto p-4 text-center gap-2 flex flex-col'>
       <h1 className='text-2xl font-bold mb-2'>Session Expired</h1>
       <p>{message} Please log in again.</p>
       <button

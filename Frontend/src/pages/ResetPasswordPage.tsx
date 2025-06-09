@@ -2,12 +2,10 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import {
   validateConfirmedPassword,
-  validateEmail,
   validatePassword,
 } from '../utils/authValidation';
 
 type FormError = {
-  email?: string | null;
   password?: string | null;
   confirmPassword?: string | null;
   general?: string | null;
@@ -16,11 +14,11 @@ type FormError = {
 export default function ResetPasswordPage() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
-  const [email, setEmail] = useState('');
+
   const [disableButton, setDisableButton] = useState(false);
   const [formError, setFormError] = useState<FormError>({});
 
-  const { logout } = useAuth();
+  const { logout, token } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,16 +26,14 @@ export default function ResetPasswordPage() {
     setDisableButton(true);
     setFormError({});
 
-    const emailError = validateEmail(email);
     const newPasswordError = validatePassword(newPassword);
     const confirmPasswordError = validateConfirmedPassword(
       newPassword,
       confirmNewPassword,
     );
 
-    if (emailError || newPasswordError || confirmPasswordError) {
+    if (newPasswordError || confirmPasswordError) {
       setFormError({
-        email: emailError,
         password: newPasswordError,
         confirmPassword: confirmPasswordError,
       });
@@ -51,16 +47,15 @@ export default function ResetPasswordPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          email,
           newPassword,
         }),
       });
 
       const data = await res.json();
       if (res.ok) {
-        setEmail('');
         setNewPassword('');
         setConfirmNewPassword('');
       } else {
@@ -84,15 +79,6 @@ export default function ResetPasswordPage() {
     <div className='max-w-md mx-auto p-4'>
       <h2 className='text-2xl font-bold mb-4'>Change Password</h2>
       <form onSubmit={handleSubmit} className='space-y-4'>
-        <input
-          type='email'
-          name='email'
-          className='w-full p-2 border rounded'
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          required
-          placeholder='Email Address'
-        />
         <input
           type='password'
           name='password'
@@ -119,11 +105,6 @@ export default function ResetPasswordPage() {
           Change Password
         </button>
       </form>
-      {formError.email && (
-        <p className='mt-4 text-center text-red-600'>
-          <span className='text-black font-bold'></span> {formError.email}
-        </p>
-      )}
       {formError.password && (
         <p className='mt-4 text-center text-red-600'>
           <span className='text-black font-bold'></span> {formError.password}

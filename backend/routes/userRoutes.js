@@ -111,17 +111,15 @@ router.post('/login', async (req, res) => {
   res.json({ token, user: { email: user.email, username: user.username } });
 });
 
-router.post('/resetpassword', async (req, res) => {
-  const email = req.body.email?.toLowerCase();
+router.post('/resetpassword', authenticateToken, async (req, res) => {
   const { newPassword } = req.body;
+  const email = req.user?.email?.toLowerCase();
 
-  const emailError = validateEmail(email);
   const passwordError = validatePassword(newPassword);
 
-  if (emailError || passwordError) {
+  if (passwordError) {
     return res.status(400).json({
       errors: {
-        email: emailError,
         password: passwordError,
       },
     });
