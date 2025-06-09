@@ -12,7 +12,7 @@ export default function DashboardPage() {
     username!.charAt(0).toUpperCase() + username!.slice(1);
 
   return (
-    <div className='max-w-md mx-auto p-4 gap-2 flex flex-col'>
+    <div className='max-w-md mx-auto p-4 gap-2 flex flex-col text-center'>
       <h2 className='text-2xl '>DashboardPage</h2>
       <p>Welcome to your Dashboard {UsernameCaptilised}</p>
       <button

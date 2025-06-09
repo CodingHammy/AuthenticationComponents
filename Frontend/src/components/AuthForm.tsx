@@ -39,6 +39,7 @@ export default function AuthForm({ type }: AuthFormProps) {
 
     const emailError = validateEmail(email);
     const passwordError = validatePassword(password);
+
     const usernameError = type === 'login' ? null : validateUsername(username);
 
     if (emailError || passwordError || usernameError) {
@@ -47,6 +48,7 @@ export default function AuthForm({ type }: AuthFormProps) {
         password: passwordError,
         username: usernameError,
       });
+      setDisableButton(false);
       return;
     } else {
       setFormError({});
