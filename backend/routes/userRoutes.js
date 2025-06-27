@@ -1,13 +1,12 @@
 const dotenv = require('dotenv');
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcryptjs');
+
 const User = require('../models/User');
 
 const registerRoute = require('../auth/register.js');
 const loginRoute = require('../auth/login.js');
-
-const { validatePassword } = require('../utils/authValidation');
+const resetpasswordRoute = require('../auth/resetPassword.js');
 
 // NOTE: import authenticateToken middleware for protecting routes
 const authenticateToken = require('../middlewares/authMiddleware');
@@ -16,6 +15,7 @@ dotenv.config();
 
 router.use('/', registerRoute);
 router.use('/', loginRoute);
+router.use('/', resetpasswordRoute);
 
 // router.post('/register', async (req, res) => {
 //   // NOTE: extracts email and makes it lowercase
@@ -112,38 +112,38 @@ router.use('/', loginRoute);
 //   res.json({ token, user: { email: user.email, username: user.username } });
 // });
 
-router.post('/resetpassword', authenticateToken, async (req, res) => {
-  const { newPassword } = req.body;
-  const email = req.user?.email?.toLowerCase();
+// router.post('/resetpassword', authenticateToken, async (req, res) => {
+//   const { newPassword } = req.body;
+//   const email = req.user?.email?.toLowerCase();
 
-  const passwordError = validatePassword(newPassword);
+//   const passwordError = validatePassword(newPassword);
 
-  if (passwordError) {
-    return res.status(400).json({
-      errors: {
-        password: passwordError,
-      },
-    });
-  }
-  try {
-    const existingUser = await User.findOne({ email });
+//   if (passwordError) {
+//     return res.status(400).json({
+//       errors: {
+//         password: passwordError,
+//       },
+//     });
+//   }
+//   try {
+//     const existingUser = await User.findOne({ email });
 
-    if (!existingUser) {
-      return res.status(404).json({ errors: { email: 'User not found' } });
-    }
+//     if (!existingUser) {
+//       return res.status(404).json({ errors: { email: 'User not found' } });
+//     }
 
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    existingUser.password = hashedPassword;
-    await existingUser.save();
+//     const hashedPassword = await bcrypt.hash(newPassword, 10);
+//     existingUser.password = hashedPassword;
+//     await existingUser.save();
 
-    res.status(200).json({
-      message: 'Password reset successfully',
-    });
-  } catch (error) {
-    console.error('Error resetting password:', error);
-    res.status(500).json({ errors: { general: 'Internal server error' } });
-  }
-});
+//     res.status(200).json({
+//       message: 'Password reset successfully',
+//     });
+//   } catch (error) {
+//     console.error('Error resetting password:', error);
+//     res.status(500).json({ errors: { general: 'Internal server error' } });
+//   }
+// });
 
 // NOTE: This route simulates a logout operation
 // INFO: Token blacklist is not implemented. For higher security, consider it in future.
