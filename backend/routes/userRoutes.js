@@ -2,12 +2,12 @@ const dotenv = require('dotenv');
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 const registerRoute = require('../auth/register.js');
+const loginRoute = require('../auth/login.js');
 
-const { validateEmail, validatePassword } = require('../utils/authValidation');
+const { validatePassword } = require('../utils/authValidation');
 
 // NOTE: import authenticateToken middleware for protecting routes
 const authenticateToken = require('../middlewares/authMiddleware');
@@ -15,6 +15,7 @@ const authenticateToken = require('../middlewares/authMiddleware');
 dotenv.config();
 
 router.use('/', registerRoute);
+router.use('/', loginRoute);
 
 // router.post('/register', async (req, res) => {
 //   // NOTE: extracts email and makes it lowercase
@@ -67,49 +68,49 @@ router.use('/', registerRoute);
 //   });
 // });
 
-router.post('/login', async (req, res) => {
-  // NOTE: Extracts email, username and password  from request body
+// router.post('/login', async (req, res) => {
+//   // NOTE: Extracts email, username and password  from request body
 
-  const email = req.body.email?.toLowerCase();
-  const { password } = req.body;
+//   const email = req.body.email?.toLowerCase();
+//   const { password } = req.body;
 
-  const emailError = validateEmail(email);
-  const passwordError = validatePassword(password);
+//   const emailError = validateEmail(email);
+//   const passwordError = validatePassword(password);
 
-  if (emailError || passwordError) {
-    return res.status(400).json({
-      errors: {
-        email: emailError,
-        password: passwordError,
-      },
-    });
-  }
+//   if (emailError || passwordError) {
+//     return res.status(400).json({
+//       errors: {
+//         email: emailError,
+//         password: passwordError,
+//       },
+//     });
+//   }
 
-  // NOTE: Find user in in db
+//   // NOTE: Find user in in db
 
-  const user = await User.findOne({ email }).select('+password');
-  // NOTE: checks if user exists then compare input password with hashed password
-  const isPasswordCorrect =
-    user && (await bcrypt.compare(password, user.password));
-  if (!user || !isPasswordCorrect) {
-    return res
-      .status(401)
-      .json({ errors: { email: 'Invalid email or password' } });
-  }
+//   const user = await User.findOne({ email }).select('+password');
+//   // NOTE: checks if user exists then compare input password with hashed password
+//   const isPasswordCorrect =
+//     user && (await bcrypt.compare(password, user.password));
+//   if (!user || !isPasswordCorrect) {
+//     return res
+//       .status(401)
+//       .json({ errors: { email: 'Invalid email or password' } });
+//   }
 
-  // NOTE: Generate JWT token with user's email
-  const token = jwt.sign(
-    { email: user.email, username: user.username },
-    process.env.JWT_SECRET,
-    {
-      // TODO: Set time to 1hr after testing
-      expiresIn: '1hr',
-    },
-  );
+//   // NOTE: Generate JWT token with user's email
+//   const token = jwt.sign(
+//     { email: user.email, username: user.username },
+//     process.env.JWT_SECRET,
+//     {
+//       // TODO: Set time to 1hr after testing
+//       expiresIn: '1hr',
+//     },
+//   );
 
-  // NOTE: Respond with token for client to store and use
-  res.json({ token, user: { email: user.email, username: user.username } });
-});
+//   // NOTE: Respond with token for client to store and use
+//   res.json({ token, user: { email: user.email, username: user.username } });
+// });
 
 router.post('/resetpassword', authenticateToken, async (req, res) => {
   const { newPassword } = req.body;
