@@ -1,5 +1,3 @@
-const express = require('express');
-const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -7,9 +5,9 @@ const User = require('../models/User');
 
 const { validateEmail, validatePassword } = require('../utils/authValidation');
 
-router.post('/login', async (req, res) => {
+exports.loginUser = async (req, res) => {
   // NOTE: Extracts email, username and password  from request body
-
+  console.log('hit');
   const email = req.body.email?.toLowerCase();
   const { password } = req.body;
 
@@ -29,8 +27,14 @@ router.post('/login', async (req, res) => {
 
   const user = await User.findOne({ email }).select('+password');
   // NOTE: checks if user exists then compare input password with hashed password
-  const isPasswordCorrect =
-    user && (await bcrypt.compare(password, user.password));
+  if (!user) {
+    return res
+      .status(401)
+      .json({ errors: { email: 'Invalid email or password' } });
+  }
+
+  const isPasswordCorrect = await bcrypt.compare(password, user.password);
+
   if (!user || !isPasswordCorrect) {
     return res
       .status(401)
@@ -43,12 +47,10 @@ router.post('/login', async (req, res) => {
     process.env.JWT_SECRET,
     {
       // TODO: Set time to 1hr after testing
-      expiresIn: '1hr',
+      expiresIn: '1h',
     },
   );
 
   // NOTE: Respond with token for client to store and use
   res.json({ token, user: { email: user.email, username: user.username } });
-});
-
-module.exports = router;
+};

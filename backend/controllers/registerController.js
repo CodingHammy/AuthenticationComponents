@@ -1,8 +1,5 @@
-const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const router = express.Router();
-
 const User = require('../models/User');
 
 const {
@@ -11,7 +8,7 @@ const {
   validateUsername,
 } = require('../utils/authValidation');
 
-router.post('/register', async (req, res) => {
+exports.registerUser = async (req, res) => {
   // NOTE: extracts email and makes it lowercase
   const email = req.body.email?.toLowerCase();
   const { password, username } = req.body;
@@ -59,6 +56,4 @@ router.post('/register', async (req, res) => {
     token,
     user: { email: newUser.email, username: newUser.username },
   });
-});
-
-module.exports = router;
+};
