@@ -1,10 +1,8 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import {
-  validateEmail,
-  validateUsername,
-  validatePassword,
-} from '../utils/authValidation';
+import { loginUser, registerUser } from '../services/authApi';
+
+import { validateForm } from '../utils/authValidation';
 
 type AuthFormProps = {
   type: 'login' | 'register';
@@ -16,7 +14,7 @@ type FormError = {
   general?: string | null;
 };
 
-export default function AuthForm({ type }: AuthFormProps) {
+export default function AuthForm({ type = 'login' }: AuthFormProps) {
   // NOTE: form state for : email, password, and message,
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
@@ -37,38 +35,22 @@ export default function AuthForm({ type }: AuthFormProps) {
     setFormError({});
     // NOTE: endpoint is determined by the type of form, register or login
 
-    const emailError = validateEmail(email);
-    const passwordError = validatePassword(password);
+    const errors = validateForm({ email, password, username }, type);
 
-    const usernameError = type === 'login' ? null : validateUsername(username);
-
-    if (emailError || passwordError || usernameError) {
-      setFormError({
-        email: emailError,
-        password: passwordError,
-        username: usernameError,
-      });
+    if (errors.email || errors.password || errors.username) {
+      setFormError(errors);
       setDisableButton(false);
       return;
     } else {
       setFormError({});
     }
-
-    const endPoint =
-      type === 'register'
-        ? 'http://localhost:3000/api/users/register'
-        : 'http://localhost:3000/api/users/login';
     try {
-      const res = await fetch(endPoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password, username }),
-      });
-      const data = await res.json();
+      const { ok, data } =
+        type === 'register'
+          ? await registerUser({ email, password, username })
+          : await loginUser({ email, password });
 
-      if (res.ok) {
+      if (ok) {
         // NOTE: log in store token and navigate to dashboard
         login(data.token, data.user.username);
         // NOTE: reset form fields after successful login or register
@@ -98,6 +80,7 @@ export default function AuthForm({ type }: AuthFormProps) {
         {type === 'register' && (
           <input
             type='text'
+            data-testid='username-input'
             placeholder='username'
             className='w-full p-2 border rounded font-bold'
             value={username}
@@ -107,6 +90,7 @@ export default function AuthForm({ type }: AuthFormProps) {
         )}
         <input
           type='email'
+          data-testid='email-input'
           placeholder='email'
           className='w-full p-2 border rounded'
           value={email}
@@ -115,6 +99,7 @@ export default function AuthForm({ type }: AuthFormProps) {
         />
         <input
           type='password'
+          data-testid='password-input'
           placeholder='password'
           className='w-full p-2 border rounded'
           value={password}
@@ -123,6 +108,7 @@ export default function AuthForm({ type }: AuthFormProps) {
         />
         <button
           disabled={disableButton}
+          data-testid='submit-button'
           type='submit'
           className='w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700'
         >
