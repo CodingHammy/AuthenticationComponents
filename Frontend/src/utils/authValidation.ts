@@ -35,3 +35,17 @@ export function validateUsername(username: string): string | null {
     return 'Username can only contain letters, numbers, and underscores';
   return null;
 }
+
+type FormField = {
+  email: string;
+  password: string;
+  username: string;
+};
+
+export function validateForm(fields: FormField, type: 'login' | 'register') {
+  return {
+    email: validateEmail(fields.email),
+    password: validatePassword(fields.password),
+    username: type === 'register' ? validateUsername(fields.username) : null,
+  };
+}
