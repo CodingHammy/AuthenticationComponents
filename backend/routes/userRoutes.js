@@ -2,28 +2,24 @@ const dotenv = require('dotenv');
 const express = require('express');
 const router = express.Router();
 
-const registerRoute = require('../auth/register.js');
-const loginRoute = require('../auth/login.js');
-const resetpasswordRoute = require('../auth/resetPassword.js');
+const registerRoute = require('../routes/auth/register');
+const loginRoute = require('../routes/auth/login');
+const resetpasswordRoute = require('../routes/auth/resetPassword');
 
-const dashboardRoute = require('../user/dashboard.js');
+const dashboardRoute = require('../user/dashboard');
 
 dotenv.config();
 
 // /api/users/register
-router.use('/', registerRoute);
+router.use('/register', registerRoute);
 
 // /api/users/login
-router.use('/', loginRoute);
+router.use('/login', loginRoute);
 
 // /api/users/resetpassword
-router.use('/', resetpasswordRoute);
+router.use('/resetpassword', resetpasswordRoute);
 
 // /api/users/dashboard
-router.use('/', dashboardRoute);
-
-// HACK: logout is handled entirely in the frontend
-// Placeholder route in case token blacklisting or session invalidation is added later.
-router.use('/', require('../auth/logout.js'));
+router.use('/dashboard', dashboardRoute);
 
 module.exports = router;
