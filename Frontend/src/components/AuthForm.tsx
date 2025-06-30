@@ -119,24 +119,33 @@ export default function AuthForm({ type = 'login' }: AuthFormProps) {
         </button>
       </form>
       {formError.username && (
-        <p className='mt-4 text-center text-red-600'>
-          <span className='text-black font-bold'></span> {formError.username}
+        <p
+          data-testid='username-error'
+          className='mt-4 text-center text-red-600'
+        >
+          {formError.username}
         </p>
       )}
 
       {formError.email && (
-        <p className='mt-4 text-center text-red-600'>
-          <span className='text-black font-bold'></span> {formError.email}
+        <p data-testid='email-error' className='mt-4 text-center text-red-600'>
+          {formError.email}
         </p>
       )}
       {formError.password && (
-        <p className='mt-4 text-center text-red-600'>
-          <span className='text-black font-bold'></span> {formError.password}
+        <p
+          data-testid='password-error'
+          className='mt-4 text-center text-red-600'
+        >
+          {formError.password}
         </p>
       )}
       {formError.general && (
-        <p className='mt-4 text-center text-red-600'>
-          <span className='text-black font-bold'></span> {formError.general}
+        <p
+          data-testid='general-error'
+          className='mt-4 text-center text-red-600'
+        >
+          {formError.general}
         </p>
       )}
     </div>
