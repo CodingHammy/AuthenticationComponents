@@ -81,6 +81,7 @@ export default function AuthForm({ type = 'login' }: AuthFormProps) {
           <input
             type='text'
             data-testid='username-input'
+            aria-label='Username'
             placeholder='username'
             className='w-full p-2 border rounded font-bold'
             value={username}
@@ -91,6 +92,7 @@ export default function AuthForm({ type = 'login' }: AuthFormProps) {
         <input
           type='email'
           data-testid='email-input'
+          aria-label='Email'
           placeholder='email'
           className='w-full p-2 border rounded'
           value={email}
@@ -100,6 +102,7 @@ export default function AuthForm({ type = 'login' }: AuthFormProps) {
         <input
           type='password'
           data-testid='password-input'
+          aria-label='Password'
           placeholder='password'
           className='w-full p-2 border rounded'
           value={password}
