@@ -1,43 +1,11 @@
-const bcrypt = require('bcryptjs');
 const express = require('express');
 const router = express.Router();
-
-const User = require('../../models/User');
 const authenticateToken = require('../../middlewares/authMiddleware');
 
-const { validatePassword } = require('../../utils/authValidation');
+const {
+  resetUsersPassword,
+} = require('../../controllers/resetPasswordController');
 
-router.post('/resetpassword', authenticateToken, async (req, res) => {
-  const { newPassword } = req.body;
-  const email = req.user?.email?.toLowerCase();
-
-  const passwordError = validatePassword(newPassword);
-
-  if (passwordError) {
-    return res.status(400).json({
-      errors: {
-        password: passwordError,
-      },
-    });
-  }
-  try {
-    const existingUser = await User.findOne({ email });
-
-    if (!existingUser) {
-      return res.status(404).json({ errors: { email: 'User not found' } });
-    }
-
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    existingUser.password = hashedPassword;
-    await existingUser.save();
-
-    res.status(200).json({
-      message: 'Password reset successfully',
-    });
-  } catch (error) {
-    console.error('Error resetting password:', error);
-    res.status(500).json({ errors: { general: 'Internal server error' } });
-  }
-});
+router.post('/resetpassword', authenticateToken, resetUsersPassword);
 
 module.exports = router;
