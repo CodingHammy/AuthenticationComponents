@@ -1,8 +1,12 @@
 import { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { loginUser, registerUser } from '../services/authApi';
+import { useAuth } from '../../context/AuthContext';
+import { loginUser, registerUser } from '../../services/authApi';
 
-import { validateForm } from '../utils/authValidation';
+import PasswordInput from './PasswordInput';
+import EmailInput from './EmailInput';
+import UsernameInput from './UsernameInput';
+
+import { validateForm } from '../../utils/authValidation';
 
 type AuthFormProps = {
   type: 'login' | 'register';
@@ -78,36 +82,24 @@ export default function AuthForm({ type = 'login' }: AuthFormProps) {
       {/* Form for login or register */}
       <form onSubmit={handleSubmit} className='space-y-4'>
         {type === 'register' && (
-          <input
-            type='text'
-            data-testid='username-input'
-            aria-label='Username'
-            placeholder='username'
-            className='w-full p-2 border rounded font-bold'
+          <UsernameInput
             value={username}
-            onChange={e => setUsername(e.target.value)}
-            required
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setUsername(e.target.value)
+            }
           />
         )}
-        <input
-          type='email'
-          data-testid='email-input'
-          aria-label='Email'
-          placeholder='email'
-          className='w-full p-2 border rounded'
+        <EmailInput
           value={email}
-          onChange={e => setEmail(e.target.value)}
-          required
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setEmail(e.target.value)
+          }
         />
-        <input
-          type='password'
-          data-testid='password-input'
-          aria-label='Password'
-          placeholder='password'
-          className='w-full p-2 border rounded'
+        <PasswordInput
           value={password}
-          onChange={e => setPassword(e.target.value)}
-          required
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setPassword(e.target.value)
+          }
         />
         <button
           disabled={disableButton}
