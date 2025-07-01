@@ -41,21 +41,37 @@ export default function NavBar() {
     };
   }, [btnActive]);
 
+  const isDashboard = path === '/dashboard';
+  const isResetPassword = path === '/reset-password';
+
   const capitalisedUsername =
     isAuthenticated && username
       ? username.charAt(0).toUpperCase() + username.slice(1)
       : '';
 
   return (
-    <nav className='relative flex justify-between items-center p-4 bg-gray-800 text-white'>
+    <nav
+      aria-label='main navigation'
+      className='relative flex justify-between items-center p-4 bg-gray-800 text-white'
+    >
       <h2 className='font-bold'>Auth-4</h2>
       <div className='space-x-4'>
         {!isAuthenticated ? (
           <>
-            <Link className='hover:underline' to='/'>
+            <Link
+              className='hover:underline'
+              to='/'
+              data-testid='link-login'
+              aria-label='Link to log in page'
+            >
               Login
             </Link>
-            <Link className='hover:underline' to='/register'>
+            <Link
+              className='hover:underline'
+              to='/register'
+              data-testid='link-register'
+              aria-label='Link to registration page'
+            >
               Register
             </Link>
           </>
@@ -64,13 +80,17 @@ export default function NavBar() {
             <button
               className='flex items-center gap-2 hover:underline'
               ref={buttonRef}
+              data-testid='user-dropdown-btn'
+              aria-label='Toggle user menu'
+              aria-expanded={btnActive}
+              aria-controls='user-menu'
               onClick={() => setBtnActive(!btnActive)}
             >
               <span className='font-semibold flex gap-2'>
                 {capitalisedUsername}
                 <img
-                  src='../../public/downIcon.svg'
-                  alt='down button'
+                  src='/downIcon.svg'
+                  alt='toggle dropdown'
                   className={`${btnActive && 'rotate-180'} ${
                     btnActive && 'mt-[5px]'
                   }`}
@@ -79,17 +99,30 @@ export default function NavBar() {
             </button>
             {btnActive && (
               <div className='relative' ref={menuRef}>
-                <ul className='absolute right-[-17px] mt-1 w-36 bg-gray-800 text-white rounded-bl-2xl shadow-lg py-3 pr-2 text-end'>
-                  {path === '/dashboard' && (
+                <ul
+                  className='absolute right-[-17px] mt-1 w-36 bg-gray-800 text-white rounded-bl-2xl shadow-lg py-3 pr-2 text-end'
+                  id='user-menu'
+                >
+                  {isDashboard && (
                     <li className='mt-2 pr-[8px]'>
-                      <Link className='hover:underline' to='/reset-password'>
+                      <Link
+                        className='hover:underline'
+                        to='/reset-password'
+                        data-testid='link-reset-password'
+                        aria-label='Navigate to reset password'
+                      >
                         Reset Password
                       </Link>
                     </li>
                   )}
-                  {path === '/reset-password' && (
+                  {isResetPassword && (
                     <li className='mt-2 pr-[8px]'>
-                      <Link className='hover:underline' to='/dashboard'>
+                      <Link
+                        className='hover:underline'
+                        to='/dashboard'
+                        data-testid='link-dashboard'
+                        aria-label='Navigate to the dashboard'
+                      >
                         Dashboard
                       </Link>
                     </li>
@@ -98,6 +131,8 @@ export default function NavBar() {
                     <button
                       onClick={() => logout()}
                       className='hover:underline'
+                      data-testid='logout-button'
+                      aria-label='Logout user button'
                     >
                       Logout
                     </button>
