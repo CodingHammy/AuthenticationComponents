@@ -6,6 +6,7 @@ type EmailInputProps = {
 export default function EmailInput({ value, onChange }: EmailInputProps) {
   return (
     <input
+      id='email-input'
       type='email'
       data-testid='email-input'
       aria-label='Email'

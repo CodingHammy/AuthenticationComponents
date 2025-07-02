@@ -6,6 +6,7 @@ type UsernameInputProps = {
 export default function UsernameInput({ value, onChange }: UsernameInputProps) {
   return (
     <input
+      id='Username-input'
       type='text'
       data-testid='username-input'
       aria-label='Username'
