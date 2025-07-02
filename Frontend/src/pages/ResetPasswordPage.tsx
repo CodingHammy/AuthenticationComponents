@@ -4,6 +4,7 @@ import {
   validateConfirmedPassword,
   validatePassword,
 } from '../utils/authValidation';
+import PasswordInput from '../components/auth/PasswordInput';
 
 type FormError = {
   password?: string | null;
@@ -76,26 +77,24 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className='max-w-md mx-auto p-4'>
+    <main className='max-w-md mx-auto p-4' aria-label='Reset password form'>
       <h2 className='text-2xl font-bold mb-4'>Change Password</h2>
       <form onSubmit={handleSubmit} className='space-y-4'>
-        <input
-          type='password'
-          name='password'
-          placeholder='New password'
-          className='w-full p-2 border rounded'
+        <PasswordInput
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setNewPassword(e.target.value)
+          }
+          testid='New-password'
+          placeholder='New Password'
           value={newPassword}
-          onChange={e => setNewPassword(e.target.value)}
-          required
         />
-        <input
-          type='password'
-          name='confirmpassword'
+        <PasswordInput
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setConfirmNewPassword(e.target.value)
+          }
+          testid='Confirm-password'
           placeholder='Confirm New Password'
-          className='w-full p-2 border rounded'
           value={confirmNewPassword}
-          onChange={e => setConfirmNewPassword(e.target.value)}
-          required
         />
         <button
           disabled={disableButton}
@@ -106,21 +105,16 @@ export default function ResetPasswordPage() {
         </button>
       </form>
       {formError.password && (
-        <p className='mt-4 text-center text-red-600'>
-          <span className='text-black font-bold'></span> {formError.password}
-        </p>
+        <p className='mt-4 text-center text-red-600'>{formError.password}</p>
       )}
       {formError.confirmPassword && (
         <p className='mt-4 text-center text-red-600'>
-          <span className='text-black font-bold'></span>{' '}
           {formError.confirmPassword}
         </p>
       )}
       {formError.general && (
-        <p className='mt-4 text-center text-red-600'>
-          <span className='text-black font-bold'></span> {formError.general}
-        </p>
+        <p className='mt-4 text-center text-red-600'>{formError.general}</p>
       )}
-    </div>
+    </main>
   );
 }

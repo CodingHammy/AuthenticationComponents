@@ -2,8 +2,8 @@ import { Routes, Route } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import RegisterPage from './pages/RegisterPage';
-import PrivateRoute from './components/PrivateRoute';
-import NavBar from './components/NavBar';
+import PrivateRoute from './components/privateRoute/PrivateRoute';
+import NavBar from './components/navbar/NavBar';
 import SessionExpiredPage from './pages/SessionExpiredPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 

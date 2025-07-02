@@ -1,7 +1,8 @@
 import { useLocation } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
+import UserDropdown from './UserDropdown';
 
 export default function NavBar() {
   const { isAuthenticated, logout, username } = useAuth();
@@ -47,15 +48,28 @@ export default function NavBar() {
       : '';
 
   return (
-    <nav className='relative flex justify-between items-center p-4 bg-gray-800 text-white'>
+    <nav
+      aria-label='main navigation'
+      className='relative flex justify-between items-center p-4 bg-gray-800 text-white'
+    >
       <h2 className='font-bold'>Auth-4</h2>
       <div className='space-x-4'>
         {!isAuthenticated ? (
           <>
-            <Link className='hover:underline' to='/'>
+            <Link
+              className='hover:underline'
+              to='/'
+              data-testid='link-login'
+              aria-label='Link to log in page'
+            >
               Login
             </Link>
-            <Link className='hover:underline' to='/register'>
+            <Link
+              className='hover:underline'
+              to='/register'
+              data-testid='link-register'
+              aria-label='Link to registration page'
+            >
               Register
             </Link>
           </>
@@ -64,13 +78,17 @@ export default function NavBar() {
             <button
               className='flex items-center gap-2 hover:underline'
               ref={buttonRef}
+              data-testid='user-dropdown-btn'
+              aria-label='Toggle user menu'
+              aria-expanded={btnActive}
+              aria-controls='user-menu'
               onClick={() => setBtnActive(!btnActive)}
             >
               <span className='font-semibold flex gap-2'>
                 {capitalisedUsername}
                 <img
-                  src='../../public/downIcon.svg'
-                  alt='down button'
+                  src='/downIcon.svg'
+                  alt='toggle dropdown'
                   className={`${btnActive && 'rotate-180'} ${
                     btnActive && 'mt-[5px]'
                   }`}
@@ -79,30 +97,7 @@ export default function NavBar() {
             </button>
             {btnActive && (
               <div className='relative' ref={menuRef}>
-                <ul className='absolute right-[-17px] mt-1 w-36 bg-gray-800 text-white rounded-bl-2xl shadow-lg py-3 pr-2 text-end'>
-                  {path === '/dashboard' && (
-                    <li className='mt-2 pr-[8px]'>
-                      <Link className='hover:underline' to='/reset-password'>
-                        Reset Password
-                      </Link>
-                    </li>
-                  )}
-                  {path === '/reset-password' && (
-                    <li className='mt-2 pr-[8px]'>
-                      <Link className='hover:underline' to='/dashboard'>
-                        Dashboard
-                      </Link>
-                    </li>
-                  )}
-                  <li className='mt-2 pr-[8px]'>
-                    <button
-                      onClick={() => logout()}
-                      className='hover:underline'
-                    >
-                      Logout
-                    </button>
-                  </li>
-                </ul>
+                <UserDropdown path={path} logout={logout} />
               </div>
             )}
           </div>

@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
-import {
-  validateEmail,
-  validateUsername,
-  validatePassword,
-} from '../utils/authValidation';
+import { useAuth } from '../../context/AuthContext';
+import { loginUser, registerUser } from '../../services/authApi';
+
+import PasswordInput from './PasswordInput';
+import EmailInput from './EmailInput';
+import UsernameInput from './UsernameInput';
+
+import { validateForm } from '../../utils/authValidation';
 
 type AuthFormProps = {
   type: 'login' | 'register';
@@ -16,7 +18,7 @@ type FormError = {
   general?: string | null;
 };
 
-export default function AuthForm({ type }: AuthFormProps) {
+export default function AuthForm({ type = 'login' }: AuthFormProps) {
   // NOTE: form state for : email, password, and message,
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
@@ -37,38 +39,22 @@ export default function AuthForm({ type }: AuthFormProps) {
     setFormError({});
     // NOTE: endpoint is determined by the type of form, register or login
 
-    const emailError = validateEmail(email);
-    const passwordError = validatePassword(password);
+    const errors = validateForm({ email, password, username }, type);
 
-    const usernameError = type === 'login' ? null : validateUsername(username);
-
-    if (emailError || passwordError || usernameError) {
-      setFormError({
-        email: emailError,
-        password: passwordError,
-        username: usernameError,
-      });
+    if (errors.email || errors.password || errors.username) {
+      setFormError(errors);
       setDisableButton(false);
       return;
     } else {
       setFormError({});
     }
-
-    const endPoint =
-      type === 'register'
-        ? 'http://localhost:3000/api/users/register'
-        : 'http://localhost:3000/api/users/login';
     try {
-      const res = await fetch(endPoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password, username }),
-      });
-      const data = await res.json();
+      const { ok, data } =
+        type === 'register'
+          ? await registerUser({ email, password, username })
+          : await loginUser({ email, password });
 
-      if (res.ok) {
+      if (ok) {
         // NOTE: log in store token and navigate to dashboard
         login(data.token, data.user.username);
         // NOTE: reset form fields after successful login or register
@@ -96,33 +82,28 @@ export default function AuthForm({ type }: AuthFormProps) {
       {/* Form for login or register */}
       <form onSubmit={handleSubmit} className='space-y-4'>
         {type === 'register' && (
-          <input
-            type='text'
-            placeholder='username'
-            className='w-full p-2 border rounded font-bold'
+          <UsernameInput
             value={username}
-            onChange={e => setUsername(e.target.value)}
-            required
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setUsername(e.target.value)
+            }
           />
         )}
-        <input
-          type='email'
-          placeholder='email'
-          className='w-full p-2 border rounded'
+        <EmailInput
           value={email}
-          onChange={e => setEmail(e.target.value)}
-          required
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setEmail(e.target.value)
+          }
         />
-        <input
-          type='password'
-          placeholder='password'
-          className='w-full p-2 border rounded'
+        <PasswordInput
           value={password}
-          onChange={e => setPassword(e.target.value)}
-          required
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setPassword(e.target.value)
+          }
         />
         <button
           disabled={disableButton}
+          data-testid='submit-button'
           type='submit'
           className='w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700'
         >
@@ -130,24 +111,33 @@ export default function AuthForm({ type }: AuthFormProps) {
         </button>
       </form>
       {formError.username && (
-        <p className='mt-4 text-center text-red-600'>
-          <span className='text-black font-bold'></span> {formError.username}
+        <p
+          data-testid='username-error'
+          className='mt-4 text-center text-red-600'
+        >
+          {formError.username}
         </p>
       )}
 
       {formError.email && (
-        <p className='mt-4 text-center text-red-600'>
-          <span className='text-black font-bold'></span> {formError.email}
+        <p data-testid='email-error' className='mt-4 text-center text-red-600'>
+          {formError.email}
         </p>
       )}
       {formError.password && (
-        <p className='mt-4 text-center text-red-600'>
-          <span className='text-black font-bold'></span> {formError.password}
+        <p
+          data-testid='password-error'
+          className='mt-4 text-center text-red-600'
+        >
+          {formError.password}
         </p>
       )}
       {formError.general && (
-        <p className='mt-4 text-center text-red-600'>
-          <span className='text-black font-bold'></span> {formError.general}
+        <p
+          data-testid='general-error'
+          className='mt-4 text-center text-red-600'
+        >
+          {formError.general}
         </p>
       )}
     </div>
